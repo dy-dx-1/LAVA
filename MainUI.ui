@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1194</width>
+    <height>859</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Interface graphique HBM</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>source/png/logo_LAVA_color.png</normaloff>source/png/logo_LAVA_color.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab0">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>source/png/logo_Maurice_SANS_cravate.png</normaloff>source/png/logo_Maurice_SANS_cravate.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Analyse Temps / Fréquence</string>
+       </attribute>
+       <layout class="QGridLayout" name="layout_tab0">
+        <item row="0" column="0">
+         <widget class="QFrame" name="main_frame_0">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="main_layout_0" rowstretch="1,5,1,1,1">
+             <item row="4" column="0">
+              <layout class="QHBoxLayout" name="layout_params">
+               <item>
+                <widget class="QGroupBox" name="gb_param_hbm">
+                 <property name="title">
+                  <string>Paramètre HBM</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="gb_param_continuation">
+                 <property name="title">
+                  <string>Paramètres de continuation</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="gb_param_mod">
+                 <property name="title">
+                  <string>Paramètres du modèle </string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="layout_infos_choix">
+               <item>
+                <widget class="QGroupBox" name="gb_infos_sys">
+                 <property name="title">
+                  <string>Informations générales du système</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="gb_chx_ddl">
+                 <property name="title">
+                  <string>Choix du ddl</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="3" column="0">
+              <layout class="QHBoxLayout" name="layout_infos_bifur">
+               <item>
+                <widget class="QGroupBox" name="gb_infos_x">
+                 <property name="title">
+                  <string>Informations sur x*</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox">
+                 <property name="title">
+                  <string>Bifurcations détectées</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="0">
+              <layout class="QGridLayout" name="layout_graphiques">
+               <item row="1" column="1">
+                <widget class="QGroupBox" name="gb_spectre_freq">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="title">
+                  <string>Spectre fréquentiel </string>
+                 </property>
+                 <layout class="QGridLayout" name="lay_spectre_freq"/>
+                </widget>
+               </item>
+               <item row="0" column="0" rowspan="2">
+                <widget class="QGroupBox" name="gb_courbe_freq">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="title">
+                  <string>Courbe de réponse en fréquence non-linéaire</string>
+                 </property>
+                 <layout class="QGridLayout" name="lay_courbe_freq"/>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QGroupBox" name="gb_ev_temp">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="title">
+                  <string>Évolution temporelle</string>
+                 </property>
+                 <layout class="QGridLayout" name="lay_ev_temp"/>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="2" column="0">
+              <layout class="QHBoxLayout" name="layout_slider" stretch="0,0,0,0">
+               <item>
+                <widget class="QPushButton" name="decrement_button">
+                 <property name="text">
+                  <string>-1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="slider_solutions">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="increment_button">
+                 <property name="text">
+                  <string>+1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="gb_idx_sol">
+                 <property name="title">
+                  <string>Index de solution</string>
+                 </property>
+                 <widget class="QLineEdit" name="idx_sol_line_edit">
+                  <property name="geometry">
+                   <rect>
+                    <x>10</x>
+                    <y>30</y>
+                    <width>113</width>
+                    <height>22</height>
+                   </rect>
+                  </property>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1194</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
