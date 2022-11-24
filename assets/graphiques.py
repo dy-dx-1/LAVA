@@ -3,9 +3,6 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 import numpy as np 
-import pickle 
-import os 
-from tkinter import filedialog
 
 class DynamicGraph: 
     """
@@ -19,7 +16,7 @@ class DynamicGraph:
     """
     _domain = [] 
     _image = [] 
-    _size = []
+    _size = None  
 
     @property 
     def domain(self): 
@@ -84,17 +81,3 @@ class Spectre_Graph(DynamicGraph):
     _image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
-
-if __name__ != "__main__":
-    input_file = "" 
-    while input_file == "":     # TODO: add better way, else this will make inf loop when someone launchs program by accident
-        input_file = filedialog.askopenfilename(
-            title= "Select an hbm_res file", 
-            filetypes=[('hbm_res', '*.pkl')], 
-            initialdir=fr"{os.getcwd()}/input") 
-
-    # TODO: implement error handling 
-    with open(input_file, "rb") as file: 
-        hbm_res = pickle.load(file)
-
-    Courbe_Frequence.regen_values(hbm_res)
