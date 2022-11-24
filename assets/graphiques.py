@@ -10,8 +10,27 @@ from tkinter import filedialog
 class DynamicGraph: 
     """
     Parent class used to create dynamic graphs, do not use directly. 
-    x_vals and y_vals should be cls variables of the child class. 
+    _domain, _image and _size are variables shared by all child classes but different for each of them 
+    which is why their property methods reference self (child object). 
+    Child classes should have a regen_values method that sets these vars accordingly for their own class. 
+
+    Property decorators not really needed for now(2022-11-24), especially as setter methods are handled by child classes, 
+    added for clarity and in case we need them later 
     """
+    _domain = [] 
+    _image = [] 
+    _size = []
+
+    @property 
+    def domain(self): 
+        return self._domain 
+    @property
+    def image(self): 
+        return self._image
+    @property
+    def size(self):
+        return self._size 
+
     def __init__(self, layout, domain, image): 
         self.figure, self.ax = plt.subplots()
         self.ax.grid(True) 
@@ -41,35 +60,30 @@ class DynamicGraph:
         self.figure.clear() 
 
 class Courbe_Frequence(DynamicGraph): 
-    _domain = [] 
-    _image = [] 
-    size = []
-    @property
-    def domain(self): 
-        return self.__class__._domain 
-    @domain.setter
-    def domain(self, new_domain): 
-        self.__class__._domain = new_domain
-    @property
-    def image(self): 
-        return self.__class__._image 
-    @image.setter
-    def image(self, new_image): 
-        self.__class__._image = new_image
+    """
+    Sets up and draws the CRF in the desired layout. 
+    regen_values method regenerates class variables (domain, image & size) of the CRF. 
+    """
+    @classmethod
+    def regen_values(cls, hbm_res): 
+        cls._domain = hbm_res['crf']['omega']
+        cls._size = len(cls._domain)
+        cls._image = hbm_res['crf']['norme']['x_t']['inf'][0]
 
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image) 
 
 class Evolution_Temporelle(DynamicGraph): 
-    domain = [1,2,3,4,5]
-    image = [-5,5,0,3,3]
+    _domain = [1,2,3,4,5]
+    _image = [-5,5,0,3,3]
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
 
 class Spectre_Graph(DynamicGraph): 
-    val_x, val_y = np.linspace(-3,3), list(map(lambda t: np.cos(t), np.linspace(-3,3)))
+    _domain = np.linspace(-3,3)
+    _image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
     def __init__(self, layout): 
-        super().__init__(layout, self.val_x, self.val_y)
+        super().__init__(layout, self.domain, self.image)
 
 if __name__ != "__main__":
     input_file = "" 
@@ -83,6 +97,4 @@ if __name__ != "__main__":
     with open(input_file, "rb") as file: 
         hbm_res = pickle.load(file)
 
-    Courbe_Frequence.domain = hbm_res['crf']['omega']
-    Courbe_Frequence.size = len(Courbe_Frequence.domain)
-    Courbe_Frequence.image = hbm_res['crf']['norme']['x_t']['inf'][0]
+    Courbe_Frequence.regen_values(hbm_res)

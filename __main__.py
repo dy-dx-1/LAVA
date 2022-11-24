@@ -1,11 +1,11 @@
 from tkinter import filedialog
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSlot
-from main_ui import Ui_MainWindow
+from assets.main_ui import Ui_MainWindow
 
 import sys 
 
-import graphiques as graphs 
+import assets.graphiques as graphs 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
