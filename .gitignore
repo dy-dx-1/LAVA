@@ -157,6 +157,7 @@ cython_debug/
 /Scripts 
 pyvenv.cfg 
 test.py 
+VirtualEnv/
 
 #hbm_res input files 
-input/
+input/*
