@@ -8,7 +8,7 @@ import assets.graphiques as graphs
 import pickle 
 import os 
 from tkinter import filedialog
-
+import numpy as np 
 def initial_setup(): 
     input_file = "" 
     while input_file == "":     # TODO: add better way, else this will make inf loop when someone launchs program by accident
@@ -20,8 +20,24 @@ def initial_setup():
     # TODO: implement error handling 
     with open(input_file, "rb") as file: 
         hbm_res = pickle.load(file)
-    print(hbm_res['input']['syst']['ddl_visu'].items())
+    
+    post = {
+    'norme': 'inf',
+    'quantite': 'x_t',
+    'idx_ddl': np.array([0]), # idx des ddls à afficher
+    'colors': {'bleu': '#22a1e9',
+               'vert': '#80cc28',
+               'orange': '#fa961e',
+               'rouge': '#bf2033',
+               'magenta': '#ff00ff',
+               'noir': '#000000',
+               'soft_gray': '#696969',
+               'dark_gray': '#6a6a6a'},
+    'sep_deci': '.'}
+
     graphs.Courbe_Frequence.regen_values(hbm_res)
+    graphs.Evolution_Temporelle.regen_references(hbm_res, post) 
+    graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
@@ -53,6 +69,10 @@ class MainWindow(QtWidgets.QMainWindow):
             
             # updating txt (lineedit) box of idx_sols 
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
+
+            # updating evolution temporelle 
+            self.ev_temp.regen_values(index_of_point)
+            self.ev_temp.update_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)
 
         # Connecting update_point to the courbe_freq 
         self.ui.slider_solutions.valueChanged.connect(update_point)
