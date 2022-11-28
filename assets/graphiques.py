@@ -14,19 +14,10 @@ class DynamicGraph:
     Property decorators not really needed for now(2022-11-24), especially as setter methods are handled by child classes, 
     added for clarity and in case we need them later 
     """
-    _domain = [] 
-    _image = [] 
-    _size = None  
+    domain = [] 
+    image = [] 
+    size = None  
 
-    @property 
-    def domain(self): 
-        return self._domain 
-    @property
-    def image(self): 
-        return self._image
-    @property
-    def size(self):
-        return self._size 
 
     def __init__(self, layout, domain, image): 
         self.figure, self.ax = plt.subplots()
@@ -61,23 +52,24 @@ class Courbe_Frequence(DynamicGraph):
     Sets up and draws the CRF in the desired layout. 
     regen_values method regenerates class variables (domain, image & size) of the CRF. 
     """
+
     @classmethod
     def regen_values(cls, hbm_res): 
-        cls._domain = hbm_res['crf']['omega']
-        cls._size = len(cls._domain)
-        cls._image = hbm_res['crf']['norme']['x_t']['inf'][0]
+        cls.domain = hbm_res['crf']['omega']
+        cls.size = len(cls.domain)
+        cls.image = hbm_res['crf']['norme']['x_t']['inf'][0]
 
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image) 
 
 class Evolution_Temporelle(DynamicGraph): 
-    _domain = [1,2,3,4,5]
-    _image = [-5,5,0,3,3]
+    domain = [1,2,3,4,5]
+    image = [-5,5,0,3,3]
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
 
 class Spectre_Graph(DynamicGraph): 
-    _domain = np.linspace(-3,3)
-    _image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
+    domain = np.linspace(-3,3)
+    image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
