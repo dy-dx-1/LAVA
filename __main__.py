@@ -20,7 +20,7 @@ def initial_setup():
     # TODO: implement error handling 
     with open(input_file, "rb") as file: 
         hbm_res = pickle.load(file)
-
+    print(hbm_res['input']['syst']['ddl_visu'].items())
     graphs.Courbe_Frequence.regen_values(hbm_res)
 
 class MainWindow(QtWidgets.QMainWindow):
