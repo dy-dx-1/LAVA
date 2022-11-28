@@ -4,7 +4,24 @@ import sys
 
 from assets.main_ui import Ui_MainWindow
 import assets.graphiques as graphs 
-import assets.file_handling as fhand 
+
+import pickle 
+import os 
+from tkinter import filedialog
+
+def initial_setup(): 
+    input_file = "" 
+    while input_file == "":     # TODO: add better way, else this will make inf loop when someone launchs program by accident
+        input_file = filedialog.askopenfilename(
+            title= "Select an hbm_res file", 
+            filetypes=[('hbm_res', '*.pkl')], 
+            initialdir=fr"{os.getcwd()}/input") 
+
+    # TODO: implement error handling 
+    with open(input_file, "rb") as file: 
+        hbm_res = pickle.load(file)
+
+    graphs.Courbe_Frequence.regen_values(hbm_res)
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
@@ -57,9 +74,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
 def main():
+    initial_setup() 
     app = QtWidgets.QApplication(sys.argv) 
     window = MainWindow()
     window.show() 
+    window.activateWindow() 
     sys.exit(app.exec()) 
 
 if __name__ == "__main__": 
