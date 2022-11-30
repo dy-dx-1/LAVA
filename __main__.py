@@ -51,6 +51,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def resizeEvent(self, event_obj):        # overriding the resizeEvent method of QMainWindow so that we can update our cached backgrounds (for blitting)
         self.courbe_freq.background = None   # indication to recache the background on next update 
+        self.ev_temp.background = None 
 
     def setup_courbe_freq(self): 
         # Plotting something in courbe de réponse en fréq non linéaire 

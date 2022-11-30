@@ -25,20 +25,22 @@ class DynamicGraph:
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
             
-
     def update_plot(self, new_x, new_y, point_like=True):
         if not self.background: # if we are at first update or after resize, cache the background in the new position 
             if point_like: 
                 self.artist = self.ax.plot(0,0, 'go', animated=True)[0]  # if here, first run so create point Indexing at 0 to hold the object of the point, plot returns a list 
                 self.background = self.canvas.copy_from_bbox(self.ax.bbox) # caching the static image where we will put the point over
             else: 
+                self.ax.cla() # clearing axis to get a clean copy of background as cached reference 
+                self.ax.grid(True) 
+                self.canvas.draw() 
+                self.background = self.canvas.copy_from_bbox(self.ax.bbox) # saving the clean axis
                 self.artist = self.ax.plot([],[], animated=True)[0]  
-                self.background = self.canvas.copy_from_bbox(self.ax.bbox) # saving background as empty canvas since we want to redraw over blank canvas instead of line 
-        # updating point's location 
+        # updating artist data 
         self.artist.set_data(new_x, new_y) 
         # preparing for blit by restoring default region
         self.canvas.restore_region(self.background)
-        # adding the new point to the ax
+        # adding the new artist to the ax
         self.ax.draw_artist(self.artist) 
         # blitting and flushing the events to make sure everything is done cleanly
         self.canvas.blit(self.ax.bbox)
