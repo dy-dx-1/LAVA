@@ -151,8 +151,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Personal tests files 
+# Personal test files 
 /Tests 
+test_*.py
 # virtual env 
 /Scripts 
 pyvenv.cfg 
