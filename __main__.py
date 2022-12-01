@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSlot
 import sys 
 
-from assets.main_ui import Ui_MainWindow
+from assets.ui_structure import Ui_MainWindow
 import assets.graphiques as graphs 
 
 import pickle 
@@ -21,6 +21,12 @@ def initial_setup():
     with open(input_file, "rb") as file: 
         hbm_res = pickle.load(file)
     
+    # Extracting ddl options, we will add them to combobox on GUI init 
+    ddls_dict = hbm_res['input']['syst']['ddl_visu']
+    ddl_idx = ddls_dict.keys() #############################################TODO: 'if k in ddl_idx' necessary?? 
+    ddl_nl_labels = (fr"{k} : ${v}$" for k, v in hbm_res['input']['syst']['ddl_visu'].items() if k in ddl_idx)
+    graphs.Courbe_Frequence.ddls_to_display = ddl_nl_labels
+
     post = {
     'norme': 'inf',
     'quantite': 'x_t',
@@ -35,6 +41,7 @@ def initial_setup():
                'dark_gray': '#6a6a6a'},
     'sep_deci': '.'}
 
+    # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values(hbm_res)
     graphs.Evolution_Temporelle.regen_references(hbm_res, post) 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
@@ -43,7 +50,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
-        self.ui.setupUi(self)                           # Setting up the UI defined by "main_ui.py"
+        self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
+        for ddl_text in graphs.Courbe_Frequence.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)
     
         self.setup_courbe_freq()
         self.setup_evol_temp() 
