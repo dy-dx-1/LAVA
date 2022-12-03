@@ -22,28 +22,12 @@ def initial_setup():
         hbm_res = pickle.load(file)
     
     # Extracting ddl options, we will add them to combobox on GUI init 
-    ddls_dict = hbm_res['input']['syst']['ddl_visu']
-    ddl_idx = ddls_dict.keys() #############################################TODO: 'if k in ddl_idx' necessary?? 
-    ddl_nl_labels = (fr"{k} : ${v}$" for k, v in hbm_res['input']['syst']['ddl_visu'].items() if k in ddl_idx)
-    graphs.Courbe_Frequence.ddls_to_display = ddl_nl_labels
-
-    post = {
-    'norme': 'inf',
-    'quantite': 'x_t',
-    'idx_ddl': np.array([0]), # idx des ddls à afficher
-    'colors': {'bleu': '#22a1e9',
-               'vert': '#80cc28',
-               'orange': '#fa961e',
-               'rouge': '#bf2033',
-               'magenta': '#ff00ff',
-               'noir': '#000000',
-               'soft_gray': '#696969',
-               'dark_gray': '#6a6a6a'},
-    'sep_deci': '.'}
-
+    ddl_nl_labels = (fr"{k} : ${v}$" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
+    graphs.DynamicGraph.ddls_to_display = ddl_nl_labels
+    
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values(hbm_res)
-    graphs.Evolution_Temporelle.regen_references(hbm_res, post) 
+    graphs.Evolution_Temporelle.regen_references(hbm_res) 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -51,8 +35,9 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
         self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
-        for ddl_text in graphs.Courbe_Frequence.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)
-    
+        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text) 
+        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))
+
         self.setup_courbe_freq()
         self.setup_evol_temp() 
         self.setup_spectre() 
@@ -100,7 +85,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def setup_spectre(self): 
         # plotting something in spectre 
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
-
+    
+    def setup_new_ddl(self, new_ddl:str): 
+        print(int(new_ddl[0]))                      # TODO: use other way than currentText()? maybe just index 
 
 def main():
     initial_setup() 

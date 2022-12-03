@@ -15,7 +15,22 @@ class DynamicGraph:
     image = [] 
     size = None  
 
-
+    ddls_to_display = None    # Used to generate combobox of ddls
+    selected_ddl = 0  
+    post = {               
+    'norme': 'inf',
+    'quantite': 'x_t',
+    'idx_ddl': np.array(selected_ddl),        # idx of ddl to display, init at 0 
+    'colors': {'bleu': '#22a1e9',
+               'vert': '#80cc28',
+               'orange': '#fa961e',
+               'rouge': '#bf2033',
+               'magenta': '#ff00ff',
+               'noir': '#000000',
+               'soft_gray': '#696969',
+               'dark_gray': '#6a6a6a'},
+    'sep_deci': '.'}
+    
     def __init__(self, layout, domain, image): 
         self.figure, self.ax = plt.subplots()
         self.ax.grid(True) 
@@ -55,7 +70,6 @@ class Courbe_Frequence(DynamicGraph):
     regen_values method regenerates class variables (domain, image & size) of the CRF. 
     Also holds the ddls of the system in a generator 
     """
-    ddls_to_display = None  
     @classmethod
     def regen_values(cls, hbm_res): 
         cls.domain = hbm_res['crf']['omega']
@@ -68,14 +82,13 @@ class Courbe_Frequence(DynamicGraph):
 class Evolution_Temporelle(DynamicGraph): 
     q_t_nl = None 
     hbm_res = None              # internal ref to hbm_res, used to update on slider values 
-    post = None 
+
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
 
     @classmethod 
-    def regen_references(cls, new_hbm_res:dict, new_post:dict): 
+    def regen_references(cls, new_hbm_res:dict): 
         cls.hbm_res = new_hbm_res
-        cls.post = new_post
 
     @classmethod
     def regen_values(cls, sol_idx:int): 
