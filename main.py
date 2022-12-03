@@ -8,7 +8,7 @@ import assets.graphiques as graphs
 import pickle 
 import os 
 from tkinter import filedialog
-import numpy as np 
+
 def initial_setup(): 
     input_file = filedialog.askopenfilename(
         title= "Select an hbm_res file", 
@@ -20,12 +20,12 @@ def initial_setup():
         hbm_res = pickle.load(file)
     
     # Extracting ddl options, we will add them to combobox on GUI init 
-    ddl_nl_labels = (fr"{k} : {v}" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
-    graphs.DynamicGraph.ddls_to_display = ddl_nl_labels
+    graphs.DynamicGraph.ddls_to_display = (fr"{k} : {v}" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
     
+    graphs.DynamicGraph.hbm_res = hbm_res
     # Generating values for different curves with hbm_res 
-    graphs.Courbe_Frequence.regen_values(hbm_res)
-    graphs.Evolution_Temporelle.regen_references(hbm_res) 
+    graphs.Courbe_Frequence.regen_values()
+    #graphs.Evolution_Temporelle.regen_references() 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -57,14 +57,14 @@ class MainWindow(QtWidgets.QMainWindow):
             index_of_point = self.ui.slider_solutions.value() # vals of slider correspond to all the indexes in the domain and image sets
             new_x = self.courbe_freq.domain[index_of_point]           
             new_y = self.courbe_freq.image[index_of_point] 
-            self.courbe_freq.update_plot(new_x, new_y)
+            self.courbe_freq.blit_plot(new_x, new_y)
             
             # updating txt (lineedit) box of idx_sols 
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
             # updating evolution temporelle 
             self.ev_temp.regen_values(index_of_point)
-            self.ev_temp.update_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)
+            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)
 
         # Connecting update_point to the courbe_freq 
         self.ui.slider_solutions.valueChanged.connect(update_point)

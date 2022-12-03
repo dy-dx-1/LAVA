@@ -15,6 +15,7 @@ class DynamicGraph:
     image = [] 
     size = None  
 
+    hbm_res = None 
     ddls_to_display = None    # Used to generate combobox of ddls
     selected_ddl = 0  
     post = {               
@@ -40,7 +41,7 @@ class DynamicGraph:
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
             
-    def update_plot(self, new_x, new_y, point_like=True):
+    def blit_plot(self, new_x, new_y, point_like=True):
         if not self.background: # if we are at first update or after resize, cache the background in the new position 
             if point_like: 
                 self.artist = self.ax.plot(0,0, 'go', animated=True)[0]  # if here, first run so create point Indexing at 0 to hold the object of the point, plot returns a list 
@@ -71,25 +72,20 @@ class Courbe_Frequence(DynamicGraph):
     Also holds the ddls of the system in a generator 
     """
     @classmethod
-    def regen_values(cls, hbm_res): 
-        cls.domain = hbm_res['crf']['omega']
+    def regen_values(cls): 
+        cls.domain = cls.hbm_res['crf']['omega']
         cls.size = len(cls.domain)
-        cls.image = hbm_res['crf']['norme']['x_t']['inf'][0]
+        cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
 
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image) 
 
 class Evolution_Temporelle(DynamicGraph): 
     q_t_nl = None 
-    hbm_res = None              # internal ref to hbm_res, used to update on slider values 
 
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
-
-    @classmethod 
-    def regen_references(cls, new_hbm_res:dict): 
-        cls.hbm_res = new_hbm_res
-
+    
     @classmethod
     def regen_values(cls, sol_idx:int): 
         cls.q_t_nl = cls.hbm_res['crf'][cls.post['quantite']][cls.hbm_res['input']['syst']['ddl_nl']]
