@@ -10,19 +10,17 @@ import os
 from tkinter import filedialog
 import numpy as np 
 def initial_setup(): 
-    input_file = "" 
-    while input_file == "":     # TODO: add better way, else this will make inf loop when someone launchs program by accident
-        input_file = filedialog.askopenfilename(
-            title= "Select an hbm_res file", 
-            filetypes=[('hbm_res', '*.pkl')], 
-            initialdir=fr"{os.getcwd()}/input") 
+    input_file = filedialog.askopenfilename(
+        title= "Select an hbm_res file", 
+        filetypes=[('hbm_res', '*.pkl')], 
+        initialdir=fr"{os.getcwd()}/input") 
 
     # TODO: implement error handling 
     with open(input_file, "rb") as file: 
         hbm_res = pickle.load(file)
     
     # Extracting ddl options, we will add them to combobox on GUI init 
-    ddl_nl_labels = (fr"{k} : ${v}$" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
+    ddl_nl_labels = (fr"{k} : {v}" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
     graphs.DynamicGraph.ddls_to_display = ddl_nl_labels
     
     # Generating values for different curves with hbm_res 
