@@ -21,7 +21,7 @@ def initial_setup():
     
     # Extracting ddl options, we will add them to combobox on GUI init 
     graphs.DynamicGraph.ddls_to_display = (fr"{k} : {v}" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
-    
+
     graphs.DynamicGraph.hbm_res = hbm_res
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
@@ -33,8 +33,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
         self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
-        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text) 
-        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))
+        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)   # Adding ddls to combobox  
+        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))      
 
         self.setup_courbe_freq()
         self.setup_evol_temp() 
@@ -50,24 +50,21 @@ class MainWindow(QtWidgets.QMainWindow):
         # Setting bounds of slider solutions with the dom of courbe freq 
         self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
         self.ui.slider_solutions.setMinimum(0) 
-        
+        self.ui.slider_solutions.valueChanged.connect(on_slider_update)
         @pyqtSlot() 
-        def update_point(): 
+        def on_slider_update(): 
             # updating the plot on the slider value change 
             index_of_point = self.ui.slider_solutions.value() # vals of slider correspond to all the indexes in the domain and image sets
             new_x = self.courbe_freq.domain[index_of_point]           
             new_y = self.courbe_freq.image[index_of_point] 
-            self.courbe_freq.blit_plot(new_x, new_y)
+            self.courbe_freq.blit_plot(new_x, new_y, point_like=True)
             
             # updating txt (lineedit) box of idx_sols 
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
             # updating evolution temporelle 
             self.ev_temp.regen_values(index_of_point)
-            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)
-
-        # Connecting update_point to the courbe_freq 
-        self.ui.slider_solutions.valueChanged.connect(update_point)
+            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
 
         # Connecting button presses to slider value changes 
         @pyqtSlot() 
