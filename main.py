@@ -2,22 +2,49 @@ from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSlot
 import sys 
 
-from assets.main_ui import Ui_MainWindow
+from assets.ui_structure import Ui_MainWindow
 import assets.graphiques as graphs 
-import assets.file_handling as fhand 
+
+import pickle 
+import os 
+from tkinter import filedialog
+import numpy as np 
+def initial_setup(): 
+    input_file = "" 
+    while input_file == "":     # TODO: add better way, else this will make inf loop when someone launchs program by accident
+        input_file = filedialog.askopenfilename(
+            title= "Select an hbm_res file", 
+            filetypes=[('hbm_res', '*.pkl')], 
+            initialdir=fr"{os.getcwd()}/input") 
+
+    # TODO: implement error handling 
+    with open(input_file, "rb") as file: 
+        hbm_res = pickle.load(file)
+    
+    # Extracting ddl options, we will add them to combobox on GUI init 
+    ddl_nl_labels = (fr"{k} : ${v}$" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
+    graphs.DynamicGraph.ddls_to_display = ddl_nl_labels
+    
+    # Generating values for different curves with hbm_res 
+    graphs.Courbe_Frequence.regen_values(hbm_res)
+    graphs.Evolution_Temporelle.regen_references(hbm_res) 
+    graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
-        self.ui.setupUi(self)                           # Setting up the UI defined by "main_ui.py"
-    
+        self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
+        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text) 
+        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))
+
         self.setup_courbe_freq()
         self.setup_evol_temp() 
         self.setup_spectre() 
 
     def resizeEvent(self, event_obj):        # overriding the resizeEvent method of QMainWindow so that we can update our cached backgrounds (for blitting)
         self.courbe_freq.background = None   # indication to recache the background on next update 
+        self.ev_temp.background = None 
 
     def setup_courbe_freq(self): 
         # Plotting something in courbe de réponse en fréq non linéaire 
@@ -37,6 +64,10 @@ class MainWindow(QtWidgets.QMainWindow):
             # updating txt (lineedit) box of idx_sols 
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
+            # updating evolution temporelle 
+            self.ev_temp.regen_values(index_of_point)
+            self.ev_temp.update_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)
+
         # Connecting update_point to the courbe_freq 
         self.ui.slider_solutions.valueChanged.connect(update_point)
 
@@ -54,12 +85,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def setup_spectre(self): 
         # plotting something in spectre 
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
-
+    
+    def setup_new_ddl(self, new_ddl:str): 
+        print(int(new_ddl[0]))                      # TODO: use other way than currentText()? maybe just index 
 
 def main():
+    initial_setup() 
     app = QtWidgets.QApplication(sys.argv) 
     window = MainWindow()
     window.show() 
+    window.activateWindow() 
     sys.exit(app.exec()) 
 
 if __name__ == "__main__": 

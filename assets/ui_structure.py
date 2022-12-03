@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'MainUI.ui'
+# Form implementation generated from reading ui file 'MainUi.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.0
 #
@@ -56,6 +56,9 @@ class Ui_MainWindow(object):
         self.layout_infos_choix.addWidget(self.gb_infos_sys)
         self.gb_chx_ddl = QtWidgets.QGroupBox(self.main_frame_0)
         self.gb_chx_ddl.setObjectName("gb_chx_ddl")
+        self.select_chx_ddl = QtWidgets.QComboBox(self.gb_chx_ddl)
+        self.select_chx_ddl.setGeometry(QtCore.QRect(20, 30, 69, 22))
+        self.select_chx_ddl.setObjectName("select_chx_ddl")
         self.layout_infos_choix.addWidget(self.gb_chx_ddl)
         self.main_layout_0.addLayout(self.layout_infos_choix, 0, 0, 1, 1)
         self.layout_infos_bifur = QtWidgets.QHBoxLayout()
