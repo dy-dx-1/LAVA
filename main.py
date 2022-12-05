@@ -80,10 +80,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # plotting something in spectre 
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
     
-    def setup_new_ddl(self, new_ddl:str): 
-        new_ddl = int(new_ddl[0])  # TODO: use other way than currentText()? maybe just index                 
-        self.ev_temp.selected_ddl = new_ddl 
-          
+    def setup_new_ddl(self, ddl:str): 
+        ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index                 
+        graphs.DynamicGraph.update_ddl(new_ddl=ddl)          
 
 def main():
     initial_setup() 

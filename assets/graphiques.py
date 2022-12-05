@@ -18,22 +18,20 @@ class DynamicGraph:
     hbm_res = None 
     ddls_to_display = None    # Used to generate combobox of ddls
 
-    #selected_ddl = 0 
-    
-    _selected_ddl = 0
-    @property 
-    def selected_ddl(self):
-        return self._selected_ddl
-
-    @selected_ddl.setter
-    def selected_ddl(self, new_ddl): 
-        self.__class__._selected_ddl = new_ddl
-        self.__class__.post['idx_ddl'] = np.array(new_ddl)
-
+    selected_ddl = 0 
+    @classmethod
+    def update_ddl(cls, new_ddl:int): 
+        cls.selected_ddl = np.array([new_ddl])
+        cls.update_post(idx_ddl = cls.selected_ddl)
+        
+    @classmethod
+    def update_post(cls, **new_values): 
+        for k, v in new_values.items(): 
+            cls.post[k] = v 
     post = {               
     'norme': 'inf',
     'quantite': 'x_t',
-    'idx_ddl': np.array(_selected_ddl),        # idx of ddl to display, init at 0 
+    'idx_ddl': np.array([selected_ddl]),        # idx of ddl to display, init at 0 
     'colors': {'bleu': '#22a1e9',
                'vert': '#80cc28',
                'orange': '#fa961e',
