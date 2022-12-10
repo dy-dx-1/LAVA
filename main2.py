@@ -24,7 +24,7 @@ def initial_setup():
 
     graphs.DynamicGraph.hbm_res = hbm_res
     # Generating values for different curves with hbm_res 
-    #graphs.Courbe_Frequence.regen_values()
+    graphs.Courbe_Frequence.regen_values()
     #graphs.Evolution_Temporelle.regen_references() 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
@@ -48,8 +48,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Plotting something in courbe de réponse en fréq non linéaire 
         self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq)
         # Setting bounds of slider solutions with the dom of courbe freq 
-        #self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
-        #self.ui.slider_solutions.setMinimum(0) 
+        self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
+        self.ui.slider_solutions.setMinimum(0) 
         @pyqtSlot() 
         def on_slider_update(): 
             # updating the plot on the slider value change 
@@ -62,15 +62,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
             # updating evolution temporelle 
-            self.ev_temp.regen_values(index_of_point)
-            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
-        #self.ui.slider_solutions.valueChanged.connect(on_slider_update)
+            ########self.ev_temp.regen_values(index_of_point)
+            ########self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
+        self.ui.slider_solutions.valueChanged.connect(on_slider_update)
         # Connecting button presses to slider value changes 
         @pyqtSlot() 
         def push_slider(push_value:int):           
             self.ui.slider_solutions.setValue(self.ui.slider_solutions.value()+push_value) 
-        #self.ui.increment_button.clicked.connect(lambda: push_slider(1))
-        #self.ui.decrement_button.clicked.connect(lambda: push_slider(-1))
+        self.ui.increment_button.clicked.connect(lambda: push_slider(1))
+        self.ui.decrement_button.clicked.connect(lambda: push_slider(-1))
 
     def setup_evol_temp(self): 
         # plotting something in évol temp 

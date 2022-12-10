@@ -82,11 +82,11 @@ class Courbe_Frequence(DynamicGraph):
     regen_values method regenerates class variables (domain, image & size) of the CRF. 
     Also holds the ddls of the system in a generator 
     """
-#    @classmethod
-#    def regen_values(cls): 
-#       cls.domain = cls.hbm_res['crf']['omega']
-#       cls.size = len(cls.domain)
-#       cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
+    @classmethod
+    def regen_values(cls): 
+       cls.domain = cls.hbm_res['crf']['omega']
+       cls.size = len(cls.domain)
+       cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
 
     def __init__(self, layout): 
         self.figure, self.ax = fig_crf_cont(self.hbm_res, self.post)
