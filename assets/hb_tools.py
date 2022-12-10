@@ -115,10 +115,7 @@ def init_fig_crf_cont(hbm_res,post,ddl=None):
             elif post['quantite']=='x_t_ddot':
                 ax.set_ylabel(r'RMS($\ddot{q}$(t)) [m.s-2]')
     return fig, ax
-
-################################################################################################################################################
-# Functions needed for evol temp 
-################################################################################################################################################    
+  
 def fig_crf_cont(hbm_res,post):
 
     colors = post['colors']
@@ -210,6 +207,10 @@ def fig_crf_cont(hbm_res,post):
             ax.scatter(hbm_res['mnl']['omega'], hbm_res['mnl']['norme'][post['quantite']][post['norme']][ddl,...].T,c='r',s=15,marker='x')
 
     return fig, ax 
+
+################################################################################################################################################
+# Functions needed for evol temp 
+################################################################################################################################################  
 
 def fig_effort_nl(self, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
     """

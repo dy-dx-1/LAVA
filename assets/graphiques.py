@@ -72,8 +72,6 @@ class DynamicGraph:
         self.canvas.blit(self.ax.bbox)
         self.canvas.flush_events()
         
-    def clear(self): 
-        self.figure.clear() 
 
 class Courbe_Frequence(DynamicGraph): 
     """

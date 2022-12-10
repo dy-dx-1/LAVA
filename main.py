@@ -94,7 +94,9 @@ class MainWindow(QtWidgets.QMainWindow):
         Runs when user selects a new ddl with ddl combobox 
         """
         ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index                 
-        graphs.DynamicGraph.update_ddl(new_ddl=ddl)          
+        graphs.DynamicGraph.update_ddl(new_ddl=ddl) 
+        self.ui.lay_courbe_freq.removeWidget(self.courbe_freq.canvas)
+        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq)
 
 def main():
     initial_setup() 
