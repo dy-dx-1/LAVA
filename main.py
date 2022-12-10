@@ -25,7 +25,6 @@ def initial_setup():
     graphs.DynamicGraph.hbm_res = hbm_res
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
-    #graphs.Evolution_Temporelle.regen_references() 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
