@@ -25,7 +25,6 @@ def initial_setup():
     graphs.DynamicGraph.hbm_res = hbm_res
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
-    #graphs.Evolution_Temporelle.regen_references() 
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -37,12 +36,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))      
 
         self.setup_courbe_freq()
-        #self.setup_evol_temp() 
-        #self.setup_spectre() 
+        self.setup_evol_temp() 
+        self.setup_spectre() 
 
     def resizeEvent(self, event_obj):        # overriding the resizeEvent method of QMainWindow so that we can update our cached backgrounds (for blitting)
         self.courbe_freq.background = None   # indication to recache the background on next update 
-        #self.ev_temp.background = None 
+        self.ev_temp.background = None 
 
     def setup_courbe_freq(self): 
         # Plotting something in courbe de réponse en fréq non linéaire 
@@ -62,8 +61,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
             # updating evolution temporelle 
-            ########self.ev_temp.regen_values(index_of_point)
-            ########self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
+            self.ev_temp.regen_values(index_of_point)
+            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
         self.ui.slider_solutions.valueChanged.connect(on_slider_update)
         # Connecting button presses to slider value changes 
         @pyqtSlot() 

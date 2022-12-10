@@ -197,7 +197,7 @@ def norme_result(norme,solv,syst,x_tilde,x_t):
         raise Exception('Erreur : type de norme \''+ norme +'\' non reconnu')
 
 def init_fig_crf_cont(hbm_res,post,ddl=None):
-    fig, ax = plt.subplots(figsize=(11.69,8.27))
+    fig, ax = plt.subplots()
     # Afficher les fréquences propres # https://github.com/matplotlib/matplotlib/issues/13618
     # calcul ou extraction des xi
     if not 'xi' in hbm_res['input']['syst'] and hbm_res['input']['syst']['type_amort'] == 'modal':
