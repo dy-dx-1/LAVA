@@ -1,6 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import matplotlib
 
 import numpy as np 
 from cycler import cycler 
@@ -15,12 +16,23 @@ class DynamicGraph:
     image = [] 
     size = None  
 
+    hbm_res = None 
     ddls_to_display = None    # Used to generate combobox of ddls
-    selected_ddl = 0  
+
+    selected_ddl = 0 
+    @classmethod
+    def update_ddl(cls, new_ddl:int): 
+        cls.selected_ddl = np.array([new_ddl])
+        cls.update_post(idx_ddl = cls.selected_ddl)
+        
+    @classmethod
+    def update_post(cls, **new_values): 
+        for k, v in new_values.items(): 
+            cls.post[k] = v 
     post = {               
     'norme': 'inf',
     'quantite': 'x_t',
-    'idx_ddl': np.array(selected_ddl),        # idx of ddl to display, init at 0 
+    'idx_ddl': np.array([selected_ddl]),        # idx of ddl to display, init at 0 
     'colors': {'bleu': '#22a1e9',
                'vert': '#80cc28',
                'orange': '#fa961e',
@@ -40,7 +52,7 @@ class DynamicGraph:
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
             
-    def update_plot(self, new_x, new_y, point_like=True):
+    def blit_plot(self, new_x, new_y, point_like=True):
         if not self.background: # if we are at first update or after resize, cache the background in the new position 
             if point_like: 
                 self.artist = self.ax.plot(0,0, 'go', animated=True)[0]  # if here, first run so create point Indexing at 0 to hold the object of the point, plot returns a list 
@@ -71,25 +83,24 @@ class Courbe_Frequence(DynamicGraph):
     Also holds the ddls of the system in a generator 
     """
     @classmethod
-    def regen_values(cls, hbm_res): 
-        cls.domain = hbm_res['crf']['omega']
-        cls.size = len(cls.domain)
-        cls.image = hbm_res['crf']['norme']['x_t']['inf'][0]
+    def regen_values(cls): 
+       cls.domain = cls.hbm_res['crf']['omega']
+       cls.size = len(cls.domain)
+       cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
 
     def __init__(self, layout): 
-        super().__init__(layout, self.domain, self.image) 
+        self.figure, self.ax = fig_crf_cont(self.hbm_res, self.post)
+        self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
+        layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
+        self.canvas.draw()              # drawing static background of the graph
+        self.background = None          # at init, background is None to let everything setup properly before caching the background 
 
 class Evolution_Temporelle(DynamicGraph): 
     q_t_nl = None 
-    hbm_res = None              # internal ref to hbm_res, used to update on slider values 
 
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
-
-    @classmethod 
-    def regen_references(cls, new_hbm_res:dict): 
-        cls.hbm_res = new_hbm_res
-
+    
     @classmethod
     def regen_values(cls, sol_idx:int): 
         cls.q_t_nl = cls.hbm_res['crf'][cls.post['quantite']][cls.hbm_res['input']['syst']['ddl_nl']]
@@ -165,3 +176,205 @@ class Spectre_Graph(DynamicGraph):
     image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
     def __init__(self, layout): 
         super().__init__(layout, self.domain, self.image)
+########-----------------------------------###################----------------------------########################---------------
+def norme_result(norme,solv,syst,x_tilde,x_t):
+    """
+    Calcule la norme d'une solution ou d'un array de solutions
+    """
+
+    if not x_tilde.size: # si vide (pas de bifurcation de ce type détectée)
+        return np.array([[]])
+
+    if norme == '2':
+        return np.sqrt(np.einsum('ijk,ijk->ik',x_tilde,x_tilde,optimize=True))
+    elif norme == 'inf':
+        return np.amax(np.abs(x_t),axis=1)
+    elif norme == 'p2p': # peak to peak ; crete à crete
+        return np.amax(x_t,axis=1) - np.amin(x_t,axis=1)
+    elif norme == 'rms': # root mean square, https://fr.wikipedia.org/wiki/Valeur_efficace
+        return np.sqrt(np.mean(x_t**2,axis=1))
+    else :
+        raise Exception('Erreur : type de norme \''+ norme +'\' non reconnu')
+
+def init_fig_crf_cont(hbm_res,post,ddl=None):
+    fig, ax = plt.subplots()
+    # Afficher les fréquences propres # https://github.com/matplotlib/matplotlib/issues/13618
+    # calcul ou extraction des xi
+    if not 'xi' in hbm_res['input']['syst'] and hbm_res['input']['syst']['type_amort'] == 'modal':
+        # 2*xi_i_omega_i
+        cn = hbm_res['input']['syst']['phi_i'].T @ hbm_res['input']['syst']['C'] @ hbm_res['input']['syst']['phi_i']
+        xi_i = np.diag(cn)/(2*hbm_res['input']['syst']['omega_i'])
+    else:
+        xi_i = hbm_res['input']['syst']['xi']
+    # fréquences amorties
+    ax.set_xticks(hbm_res['input']['syst']['omega_i']*np.sqrt(1 - xi_i**2), minor=True)
+    ax.grid(which='minor', alpha=0.5, axis='x')
+    # ajout d'un twin pour fréquence = omega/(2*np.pi) en haut
+    ax_twin = ax.twiny()
+
+    # orientation en sens croissant de l'axe des x en fonction du sens de parcours
+    if hbm_res['input']['syst']['omega_start'] < hbm_res['input']['syst']['omega_end'] :
+        ax.set_xlim(hbm_res['input']['syst']['omega_start'],hbm_res['input']['syst']['omega_end'])
+        ax_twin.set_xlim([hbm_res['input']['syst']['omega_start']/(2*np.pi),hbm_res['input']['syst']['omega_end']/(2*np.pi)])
+    else :
+        ax.set_xlim(hbm_res['input']['syst']['omega_end'],hbm_res['input']['syst']['omega_start'])
+        ax_twin.set_xlim([hbm_res['input']['syst']['omega_end']/(2*np.pi),hbm_res['input']['syst']['omega_start']/(2*np.pi)])
+    ax_twin.set_xlabel('$f$ [Hz]')
+
+    ax.set_xlabel('$\omega$ [rad.s-1]')
+
+    if post['norme'] == '2' :
+        if ddl is not None:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$||\widetilde{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}||_{2}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$||\omega\nabla\widetilde{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}||_{2}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$||\omega^{2}\nabla^{2}\widetilde{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}||_{2}$ [m.s-2]')
+        else:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$||\widetilde{q}||_{2}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$||\omega\nabla\widetilde{q}||_{2}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$||\omega^{2}\nabla^{2}\widetilde{q}||_{2}$ [m.s-2]')
+
+    elif post['norme'] == 'inf':
+        if ddl is not None:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$||'+hbm_res['input']['syst']['ddl_visu'][ddl]+'$(t)$||_{\infty}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$||\dot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)$||_{\infty}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$||\ddot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)$||_{\infty}$ [m.s-2]')
+        else:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$||q$(t)$||_{\infty}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$||\dot{q}$(t)$||_{\infty}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$||\ddot{q}$(t)$||_{\infty}$ [m.s-2]')
+
+    elif post['norme'] == 'p2p':
+        if ddl is not None:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$'+hbm_res['input']['syst']['ddl_visu'][ddl]+'$(t)$_{cc/2}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$\dot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)$_{cc/2}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$\ddot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)$_{cc/2}$ [m.s-2]')
+        else:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'$||q$(t)$||_{cc/2}$ [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'$||\dot{q}$(t)$||_{cc/2}$ [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'$||\ddot{q}$(t)$||_{cc/2}$ [m.s-2]')
+
+    elif post['norme'] == 'rms':
+        if ddl is not None:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'RMS($'+hbm_res['input']['syst']['ddl_visu'][ddl]+'$(t)) [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'RMS($\dot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)) [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'RMS($\ddot{'+hbm_res['input']['syst']['ddl_visu'][ddl]+'}$(t)) [m.s-2]')
+        else:
+            if post['quantite']=='x_t':
+                ax.set_ylabel(r'RMS($q$(t)) [m]')
+            elif post['quantite']=='x_t_dot':
+                ax.set_ylabel(r'RMS($\dot{q}$(t)) [m.s-1]')
+            elif post['quantite']=='x_t_ddot':
+                ax.set_ylabel(r'RMS($\ddot{q}$(t)) [m.s-2]')
+    return fig, ax
+def fig_crf_cont(hbm_res,post):
+
+    colors = post['colors']
+
+    if 'crf' in hbm_res:
+        if 'frf' in hbm_res: # c'est modifié :)
+             x_tilde_lin = np.moveaxis(hbm_res['frf']['x_tilde'].reshape((hbm_res['input']['solv']['N'],hbm_res['input']['syst']['n_ddl'],-1)), 0, 1)
+             norme_lin = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],x_tilde_lin,hbm_res['frf'][post['quantite']])
+
+        """
+        # ensemble des ddls
+        fig, ax = init_fig_crf_cont(hbm_res,post)
+        fig.suptitle('aperçu global')
+
+        # quantité : déplacement 'x_t' ; vitesse 'x_t_dot' ; accélération 'x_t_ddot'
+        ax.plot(hbm_res['crf']['omega'], hbm_res['crf']['norme'][post['quantite']][post['norme']][hbm_res['input']['syst']['ddl_nl'],:].T, linestyle='-', c=colors['soft_gray'], alpha=0.7)
+        for ddl in post['idx_ddl']:
+            ax.scatter(hbm_res['crf']['omega'], hbm_res['crf']['norme'][post['quantite']][post['norme']][ddl,:], c=hbm_res['stab']['color_sol'][hbm_res['input']['stab']['ref']], s=15)
+            # frf
+            if post['hbm_lin']:
+                frf_lines = matplotlib.collections.LineCollection([np.column_stack((hbm_res['frf']['omega'],norme_lin[ddl,:]))],linestyle='--',color=colors['soft_gray'],alpha=0.4)
+                ax.add_collection(frf_lines, autolim=False)
+
+        if post['save_fig']:
+            # pour visualiser rapidement si le calcul à donner qqch
+            plt.savefig(hbm_res['input']['syst']['rep_sortie']+'/figures/crf/crf_all.png')
+        """
+
+        for ddl in post['idx_ddl']:
+            fig, ax = init_fig_crf_cont(hbm_res,post,ddl)
+            # crf
+            # quantité : déplacement 'x_t' ; vitesse 'x_t_dot' ; accélération 'x_t_ddot'
+            ax.plot(hbm_res['crf']['omega'], hbm_res['crf']['norme'][post['quantite']][post['norme']][ddl,...], linestyle='-', c=colors['soft_gray'], alpha=0.7)
+            ax.scatter(hbm_res['crf']['omega'], hbm_res['crf']['norme'][post['quantite']][post['norme']][ddl,...], c=hbm_res['stab']['color_sol'][hbm_res['input']['stab']['ref']], s=15)
+
+            # mode nl
+            if 'mnl' in hbm_res:
+                ax.plot(hbm_res['mnl']['omega'], hbm_res['mnl']['norme'][post['quantite']][post['norme']][ddl,...],color='darkgray',linestyle='dashed',lw=1.5)
+                ax.scatter(hbm_res['mnl']['omega'], hbm_res['mnl']['norme'][post['quantite']][post['norme']][ddl,...],c='r',s=15,marker='x')
+
+            # bifurcations
+            if hbm_res['input']['stab']['stab']:
+
+                # Points limites
+                norme_LP = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],hbm_res['stab']['bifurcations']['Limit_Points']['x_tilde'],hbm_res['stab']['bifurcations']['Limit_Points'][post['quantite']])
+                # Points fourches (branch point)
+                norme_BP = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],hbm_res['stab']['bifurcations']['Branch_Points']['x_tilde'],hbm_res['stab']['bifurcations']['Branch_Points'][post['quantite']])
+                # Bifurcations Neimark_Sacker
+                norme_NS = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],hbm_res['stab']['bifurcations']['Neimark_Sacker']['x_tilde'],hbm_res['stab']['bifurcations']['Neimark_Sacker'][post['quantite']])
+                # Bifurcations Period_Doubling
+                norme_PD = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],hbm_res['stab']['bifurcations']['Period_Doubling']['x_tilde'],hbm_res['stab']['bifurcations']['Period_Doubling'][post['quantite']])
+                # Neutral_saddle points
+                norme_Nsp = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],hbm_res['stab']['bifurcations']['Neutral_saddle']['x_tilde'],hbm_res['stab']['bifurcations']['Neutral_saddle'][post['quantite']])
+
+                if hbm_res['stab']['bifurcations']['Limit_Points']['omega'].size:
+                    ax.scatter(hbm_res['stab']['bifurcations']['Limit_Points']['omega'],norme_LP[ddl,:],marker='$LP$',s=100,c='none',edgecolors='gold')
+
+                if hbm_res['stab']['bifurcations']['Branch_Points']['omega'].size:
+                    ax.scatter(hbm_res['stab']['bifurcations']['Branch_Points']['omega'],norme_BP[ddl,:],marker='$BP$',s=100,c='none',edgecolors='indigo',zorder=5)
+
+                if hbm_res['stab']['bifurcations']['Neimark_Sacker']['omega'].size:
+                    ax.scatter(hbm_res['stab']['bifurcations']['Neimark_Sacker']['omega'],norme_NS[ddl,:],marker='$NS$',s=100,c='none',edgecolors='deepskyblue')
+
+                if hbm_res['stab']['bifurcations']['Period_Doubling']['omega'].size:
+                    ax.scatter(hbm_res['stab']['bifurcations']['Period_Doubling']['omega'],norme_PD[ddl,:],marker='$PD$',s=100,c='none',edgecolors='royalblue')
+
+                if hbm_res['stab']['bifurcations']['Neutral_saddle']['omega'].size:
+                    ax.scatter(hbm_res['stab']['bifurcations']['Neutral_saddle']['omega'],norme_Nsp[ddl,:],marker='$SP$',s=100,c='none',edgecolors='saddlebrown')
+
+            # seuil de contact fixe
+            if hbm_res['input']['syst']['profil_contact'] == 'cst' and post['quantite']=='x_t' and np.array([s in hbm_res['input']['syst']['ddl_visu'][ddl] for s in ['x', 'y', 'q', 'r']]).any():
+                ax.hlines(hbm_res['input']['syst']['d_t'][ddl],xmin=hbm_res['input']['syst']['omega_start'],xmax=hbm_res['input']['syst']['omega_end'],color='gray',linestyle='-',linewidth=2,alpha=0.6)
+
+            # frf
+            if 'frf' in hbm_res:
+                x_tilde_lin = np.moveaxis(hbm_res['frf']['x_tilde'].reshape((hbm_res['input']['solv']['N'],hbm_res['input']['syst']['n_ddl'],-1)), 0, 1)
+                norme_lin = norme_result(post['norme'],hbm_res['input']['solv'],hbm_res['input']['syst'],x_tilde_lin,hbm_res['frf'][post['quantite']])
+                """
+                Pour ignorer automatiquement la frf dans l'autoscaling de matplotlib
+                https://stackoverflow.com/questions/7386872/make-matplotlib-autoscaling-ignore-some-of-the-plots
+                """
+                frf_lines = matplotlib.collections.LineCollection([np.column_stack((hbm_res['frf']['omega'],norme_lin[ddl,...]))],linestyle='--',color=colors['soft_gray'],alpha=0.4)
+                ax.add_collection(frf_lines, autolim=False)
+
+    elif 'mnl' in hbm_res:
+        for ddl in post['idx_ddl']:
+            fig, ax = init_fig_crf_cont(hbm_res,post,ddl)
+            ax.plot(hbm_res['mnl']['omega'], hbm_res['mnl']['norme'][post['quantite']][post['norme']][ddl,...].T,color='darkgray',linestyle='dashed',lw=1.5)
+            ax.scatter(hbm_res['mnl']['omega'], hbm_res['mnl']['norme'][post['quantite']][post['norme']][ddl,...].T,c='r',s=15,marker='x')
+
+    return fig, ax 
