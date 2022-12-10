@@ -10,6 +10,9 @@ import os
 from tkinter import filedialog
 
 def initial_setup(): 
+    """
+    Runs at the beginning of the program and collects the necessary information to generate the graphs. 
+    """
     input_file = filedialog.askopenfilename(
         title= "Select an hbm_res file", 
         filetypes=[('hbm_res', '*.pkl')], 
@@ -39,11 +42,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_evol_temp() 
         self.setup_spectre() 
 
-    def resizeEvent(self, event_obj):        # overriding the resizeEvent method of QMainWindow so that we can update our cached backgrounds (for blitting)
+    def resizeEvent(self, event_obj):       
+        """ 
+        Overrides the resizeEvent method of QMainWindow so that we can update our cached background for blitting 
+        """
         self.courbe_freq.background = None   # indication to recache the background on next update 
         self.ev_temp.background = None 
 
     def setup_courbe_freq(self): 
+        """
+        Sets up the CRF along with the slider and actions associated with it. 
+        """
         # Plotting something in courbe de réponse en fréq non linéaire 
         self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq)
         # Setting bounds of slider solutions with the dom of courbe freq 
@@ -80,6 +89,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
     
     def setup_new_ddl(self, ddl:str): 
+        """
+        Updates the GUI to display information related to a new selected ddl 
+        Runs when user selects a new ddl with ddl combobox 
+        """
         ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index                 
         graphs.DynamicGraph.update_ddl(new_ddl=ddl)          
 
