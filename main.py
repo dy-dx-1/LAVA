@@ -4,10 +4,23 @@ import sys
 
 from assets.ui_structure import Ui_MainWindow
 import assets.graphiques as graphs 
+import assets.file_handling as fhand
 
 import pickle 
 import os 
 from tkinter import filedialog
+
+# debugger 
+# ajouter informations générales du système (nom, temps de calcul) 
+# error handling file open
+# ajouter informations x* 
+# ajouter informations sur paramètresHBM 
+# Formatter évolution temporelle 
+# Ajouter efforts + format 
+# Update index on enter 
+# Ajouter navbar matplotlib pour CRF 
+# Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
+# raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
 
 def initial_setup(): 
     """
@@ -29,6 +42,7 @@ def initial_setup():
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
+    print(fhand.get_sys_info(input_file, hbm_res))
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
