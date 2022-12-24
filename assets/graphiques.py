@@ -45,6 +45,8 @@ class DynamicGraph:
     def __init__(self, layout, domain, image): 
         self.figure, self.ax = plt.subplots()
         self.ax.grid(True) 
+        plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
+        self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
         self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
         layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
         self.ax.plot(domain, image, animated=False)    # preparing initial values
@@ -86,6 +88,8 @@ class Courbe_Frequence(DynamicGraph):
 
     def __init__(self, layout): 
         self.figure, self.ax = tools.fig_crf_cont(self.hbm_res, self.post)
+        plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
+        self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
         self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
         layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
         self.canvas.draw()              # drawing static background of the graph

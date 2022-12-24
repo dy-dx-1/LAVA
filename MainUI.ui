@@ -59,13 +59,6 @@
                 </widget>
                </item>
                <item>
-                <widget class="QGroupBox" name="gb_param_continuation">
-                 <property name="title">
-                  <string>Paramètres de continuation</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QGroupBox" name="gb_param_mod">
                  <property name="title">
                   <string>Paramètres du modèle </string>
@@ -81,6 +74,19 @@
                  <property name="title">
                   <string>Informations générales du système</string>
                  </property>
+                 <widget class="QLabel" name="label_infos_sys">
+                  <property name="geometry">
+                   <rect>
+                    <x>30</x>
+                    <y>40</y>
+                    <width>491</width>
+                    <height>21</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
                 </widget>
                </item>
                <item>
@@ -109,6 +115,19 @@
                  <property name="title">
                   <string>Informations sur x*</string>
                  </property>
+                 <widget class="QLabel" name="label_infos_x">
+                  <property name="geometry">
+                   <rect>
+                    <x>20</x>
+                    <y>40</y>
+                    <width>521</width>
+                    <height>16</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
                 </widget>
                </item>
                <item>
