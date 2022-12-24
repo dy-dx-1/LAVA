@@ -9,4 +9,4 @@ def get_sys_info(name:str, hbm_res:dict)->tuple:
     nb_min = round(hbm_res['crf']['temps_calcul'].get('m')) 
     nb_s = round(hbm_res['crf']['temps_calcul'].get('s'), 2) 
     temps_calcul = f"{nb_heures} h: {nb_min} m: {nb_s} s"
-    return fichier, temps_calcul
+    return f"Fichier: {fichier}  |  Temps de calcul: {temps_calcul}"

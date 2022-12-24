@@ -11,8 +11,9 @@ import os
 from tkinter import filedialog
 
 # debugger 
-# ajouter informations générales du système (nom, temps de calcul) 
-# error handling file open
+# ajouter informations générales du système (nom, temps de calcul) /////////////////////
+# error handling file open ////////////////////////////////////////////////
+# format overflow of axis into group box/////////// NOTE: TIGHTLAYOUT CAUSES LAG ON RESIZE!!! 
 # ajouter informations x* 
 # ajouter informations sur paramètresHBM 
 # Formatter évolution temporelle 
@@ -22,18 +23,26 @@ from tkinter import filedialog
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
 # raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
 
+    
+ 
 def initial_setup(): 
     """
     Runs at the beginning of the program and collects the necessary information to generate the graphs. 
     """
+    global input_file # holds the name of the input file being analyzed. constant for all of the program when analyzing a particular file
     input_file = filedialog.askopenfilename(
         title= "Select an hbm_res file", 
         filetypes=[('hbm_res', '*.pkl')], 
         initialdir=fr"{os.getcwd()}/input") 
 
     # TODO: implement error handling 
-    with open(input_file, "rb") as file: 
-        hbm_res = pickle.load(file)
+    try: 
+        with open(input_file, "rb") as file: 
+            hbm_res = pickle.load(file)
+    except FileNotFoundError: 
+        print(f"""Aucun fichier n'a été trouvé avec le nom: "{input_file}".""")
+        print("---Fermeture du programme.---") 
+        sys.exit(1) 
     
     # Extracting ddl options, we will add them to combobox on GUI init 
     graphs.DynamicGraph.ddls_to_display = (fr"{k} : {v}" for k, v in hbm_res['input']['syst']['ddl_visu'].items())
@@ -42,13 +51,13 @@ def initial_setup():
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
-    print(fhand.get_sys_info(input_file, hbm_res))
-
+    
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
         self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
+        self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res)) 
         for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)   # Adding ddls to combobox  
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))      
 
@@ -85,7 +94,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # updating evolution temporelle 
             self.ev_temp.regen_values(index_of_point)
-            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)        
+            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)      
+
+            # updating informations sur x* 
+            self.ui.label_infos_x.setText(f"Index solution= {index_of_point} | omega= {round(new_x, 4)} | norme= {round(new_y, 6)}")  
         self.ui.slider_solutions.valueChanged.connect(on_slider_update)
         # Connecting button presses to slider value changes 
         @pyqtSlot() 
