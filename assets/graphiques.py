@@ -1,9 +1,43 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 import matplotlib.pyplot as plt
 
 import numpy as np 
 from . import hb_tools as tools 
+
+
+class BlitToolbar(NavigationToolbar2QT): 
+    """
+    Extends some methods from the NavigationToolbar in order for them to work properly with our blitting. 
+    Forcing the background of the crf_obj to None allows it to update itself on next slider update 
+    """
+    def __init__(self, crf_obj): 
+        self._ref = crf_obj
+        NavigationToolbar2QT.__init__(self, crf_obj.canvas) # creating default toolbar 
+
+    def home(self, *args): 
+        super().home(*args)
+        self._ref.background = None  
+    def back(self, *args): 
+        super().back(*args)
+        self._ref.background = None  
+    def forward(self, *args): 
+        super().forward(*args)
+        self._ref.background = None 
+    def press_pan(self, event): 
+        super().press_pan(event)
+        self._ref.background = None  
+    def press_zoom(self, event): 
+        super().press_zoom(event)
+        self._ref.background = None  
+    def release_pan(self, event):
+        super().release_pan(event)
+        self._ref.background = None 
+    def release_zoom(self, event):
+        super().release_zoom(event)
+        self._ref.background = None 
+
+
 class DynamicGraph: 
     """
     Parent class used to create dynamic graphs, do not use directly. 
@@ -86,15 +120,16 @@ class Courbe_Frequence(DynamicGraph):
        cls.size = len(cls.domain)
        cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
 
-    def __init__(self, layout): 
+    def __init__(self, layout, toolbar_layout): 
         self.figure, self.ax = tools.fig_crf_cont(self.hbm_res, self.post)
         plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
         self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
         self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
         layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
+        toolbar = BlitToolbar(self) 
+        toolbar_layout.addWidget(toolbar) # adding the toolbar to the specified layout on init 
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
-
 class Evolution_Temporelle(DynamicGraph): 
     """ 
     Sets up Evol temp graph and plots it on it's corresponding layout 

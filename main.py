@@ -95,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Sets up the CRF along with the slider and actions associated with it. 
         """
         # Plotting something in courbe de réponse en fréq non linéaire 
-        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq)
+        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_infos_choix)
         # Setting bounds of slider solutions with the dom of courbe freq 
         self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
         self.ui.slider_solutions.setMinimum(0) 
