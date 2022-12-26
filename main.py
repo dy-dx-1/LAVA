@@ -14,7 +14,7 @@ from tkinter import filedialog
 # ajouter informations générales du système (nom, temps de calcul) /////////////////////
 # error handling file open ////////////////////////////////////////////////
 # format overflow of axis into group box/////////// NOTE: TIGHTLAYOUT CAUSES LAG ON RESIZE!!! 
-# ajouter informations x* 
+# ajouter informations x* ////////////////////////////////
 # ajouter informations sur paramètresHBM 
 # Formatter évolution temporelle 
 # Ajouter efforts + format 
@@ -35,7 +35,6 @@ def initial_setup():
         filetypes=[('hbm_res', '*.pkl')], 
         initialdir=fr"{os.getcwd()}/input") 
 
-    # TODO: implement error handling 
     try: 
         with open(input_file, "rb") as file: 
             hbm_res = pickle.load(file)
@@ -64,6 +63,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_courbe_freq()
         self.setup_evol_temp() 
         self.setup_spectre() 
+        self.on_slider_update()  # running it at init so that the infos are displayed on first view and not after 1rst update of slider 
 
     def resizeEvent(self, event_obj):       
         """ 
@@ -71,6 +71,24 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         self.courbe_freq.background = None   # indication to recache the background on next update 
         self.ev_temp.background = None 
+
+    @pyqtSlot() 
+    def on_slider_update(self): 
+        # updating the plot on the slider value change 
+        index_of_point = self.ui.slider_solutions.value() # vals of slider correspond to all the indexes in the domain and image sets
+        new_x = self.courbe_freq.domain[index_of_point]           
+        new_y = self.courbe_freq.image[index_of_point] 
+        self.courbe_freq.blit_plot(new_x, new_y, point_like=True)
+        
+        # updating txt (lineedit) box of idx_sols 
+        self.ui.idx_sol_line_edit.setText(str(index_of_point))
+
+        # updating evolution temporelle 
+        self.ev_temp.regen_values(index_of_point)
+        self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)      
+
+        # updating informations sur x* 
+        self.ui.label_infos_x.setText(f"Index solution = {index_of_point}  ;  ω = {round(new_x, 4)}rad⋅s⁻¹  ;  ‖x\u20D7‖ = {round(new_y, 6)}m") 
 
     def setup_courbe_freq(self): 
         """
@@ -81,24 +99,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Setting bounds of slider solutions with the dom of courbe freq 
         self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
         self.ui.slider_solutions.setMinimum(0) 
-        @pyqtSlot() 
-        def on_slider_update(): 
-            # updating the plot on the slider value change 
-            index_of_point = self.ui.slider_solutions.value() # vals of slider correspond to all the indexes in the domain and image sets
-            new_x = self.courbe_freq.domain[index_of_point]           
-            new_y = self.courbe_freq.image[index_of_point] 
-            self.courbe_freq.blit_plot(new_x, new_y, point_like=True)
-            
-            # updating txt (lineedit) box of idx_sols 
-            self.ui.idx_sol_line_edit.setText(str(index_of_point))
 
-            # updating evolution temporelle 
-            self.ev_temp.regen_values(index_of_point)
-            self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)      
-
-            # updating informations sur x* 
-            self.ui.label_infos_x.setText(f"Index solution= {index_of_point} | omega= {round(new_x, 4)} | norme= {round(new_y, 6)}")  
-        self.ui.slider_solutions.valueChanged.connect(on_slider_update)
+        self.ui.slider_solutions.valueChanged.connect(self.on_slider_update)
         # Connecting button presses to slider value changes 
         @pyqtSlot() 
         def push_slider(push_value:int):           

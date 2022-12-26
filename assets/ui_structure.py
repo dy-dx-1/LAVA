@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'MainUi.ui'
+# Form implementation generated from reading ui file 'MainUI.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.0
 #
@@ -41,6 +41,11 @@ class Ui_MainWindow(object):
         self.layout_params.setObjectName("layout_params")
         self.gb_param_hbm = QtWidgets.QGroupBox(self.main_frame_0)
         self.gb_param_hbm.setObjectName("gb_param_hbm")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.gb_param_hbm)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label_params_hbm = QtWidgets.QLabel(self.gb_param_hbm)
+        self.label_params_hbm.setObjectName("label_params_hbm")
+        self.verticalLayout_2.addWidget(self.label_params_hbm)
         self.layout_params.addWidget(self.gb_param_hbm)
         self.gb_param_mod = QtWidgets.QGroupBox(self.main_frame_0)
         self.gb_param_mod.setObjectName("gb_param_mod")
@@ -66,10 +71,12 @@ class Ui_MainWindow(object):
         self.layout_infos_bifur.setObjectName("layout_infos_bifur")
         self.gb_infos_x = QtWidgets.QGroupBox(self.main_frame_0)
         self.gb_infos_x.setObjectName("gb_infos_x")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.gb_infos_x)
+        self.verticalLayout.setObjectName("verticalLayout")
         self.label_infos_x = QtWidgets.QLabel(self.gb_infos_x)
-        self.label_infos_x.setGeometry(QtCore.QRect(20, 40, 521, 16))
         self.label_infos_x.setText("")
         self.label_infos_x.setObjectName("label_infos_x")
+        self.verticalLayout.addWidget(self.label_infos_x)
         self.layout_infos_bifur.addWidget(self.gb_infos_x)
         self.groupBox = QtWidgets.QGroupBox(self.main_frame_0)
         self.groupBox.setObjectName("groupBox")
@@ -152,6 +159,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Interface graphique HBM"))
         self.gb_param_hbm.setTitle(_translate("MainWindow", "Paramètre HBM"))
+        self.label_params_hbm.setText(_translate("MainWindow", "TextLabel"))
         self.gb_param_mod.setTitle(_translate("MainWindow", "Paramètres du modèle "))
         self.gb_infos_sys.setTitle(_translate("MainWindow", "Informations générales du système"))
         self.gb_chx_ddl.setTitle(_translate("MainWindow", "Choix du ddl"))
