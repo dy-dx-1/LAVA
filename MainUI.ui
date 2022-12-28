@@ -80,26 +80,54 @@
               <layout class="QHBoxLayout" name="layout_infos_choix">
                <item>
                 <widget class="QGroupBox" name="gb_infos_sys">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>76</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="title">
                   <string>Informations générales du système</string>
                  </property>
-                 <widget class="QLabel" name="label_infos_sys">
-                  <property name="geometry">
-                   <rect>
-                    <x>30</x>
-                    <y>40</y>
-                    <width>491</width>
-                    <height>21</height>
-                   </rect>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
+                 <layout class="QVBoxLayout" name="verticalLayout_3">
+                  <item>
+                   <widget class="QLabel" name="label_infos_sys">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="gb_toolbar">
+                 <property name="title">
+                  <string>Navigation CRF</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="layout_toolbar"/>
                 </widget>
                </item>
                <item>
                 <widget class="QGroupBox" name="gb_chx_ddl">
+                 <property name="minimumSize">
+                  <size>
+                   <width>110</width>
+                   <height>76</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>110</width>
+                   <height>76</height>
+                  </size>
+                 </property>
                  <property name="title">
                   <string>Choix du ddl</string>
                  </property>
@@ -212,6 +240,12 @@
                </item>
                <item>
                 <widget class="QGroupBox" name="gb_idx_sol">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>76</height>
+                  </size>
+                 </property>
                  <property name="title">
                   <string>Index de solution</string>
                  </property>

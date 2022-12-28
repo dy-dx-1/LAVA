@@ -56,7 +56,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(parent=parent) 
         self.ui = Ui_MainWindow()                           
         self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
-        self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res)) 
+        self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  # Displaying infos sys 
+        self.ui.gb_infos_sys.setMinimumWidth(int(len(self.ui.label_infos_sys.text())*6.6)) # Making sure that we always display all of the text, 6.6 is just a multiplier i found to work well experimentally (letters -> pixels) 
         for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)   # Adding ddls to combobox  
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))      
 
@@ -95,7 +96,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Sets up the CRF along with the slider and actions associated with it. 
         """
         # Plotting something in courbe de réponse en fréq non linéaire 
-        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_infos_choix)
+        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_toolbar)
         # Setting bounds of slider solutions with the dom of courbe freq 
         self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
         self.ui.slider_solutions.setMinimum(0) 
@@ -124,7 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index                 
         graphs.DynamicGraph.update_ddl(new_ddl=ddl) 
         self.ui.lay_courbe_freq.removeWidget(self.courbe_freq.canvas)
-        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq)
+        self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_toolbar)
 
 def main():
     initial_setup() 
