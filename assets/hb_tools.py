@@ -212,64 +212,85 @@ def fig_crf_cont(hbm_res,post):
 # Functions needed for evol temp 
 ################################################################################################################################################  
 
-def fig_effort_nl(self, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
+def initial_adjust_ev_temp(figure, ax, domain, post:dict, dep_unit:str='m'): 
+    ## ne fonctionne pas -> fait rien (2022-30-12)
+    ddl_idx = post['idx_ddl']
+    colors_list = ['b', 'c', 'r', 'orange', 'm', 'g', 'k', 'y', 'gray']
+    custom_cycler = (cycler(color=colors_list[:ddl_idx.shape[0]]) +
+                    cycler(lw=[1]*ddl_idx.shape[0]))
+
+    # déplacements
+    ax.set_prop_cycle(custom_cycler)
+    ax.set_xlim(domain[0],domain[-1])
+
+    # autoscaling en y
+    ax.relim()
+    ax.autoscale_view(tight=True)
+    ax.set_prop_cycle(custom_cycler)
+
+    ax.set_ylabel(r'$x$(t) [' + dep_unit + ']')
+    ax.legend() 
+    return figure, ax 
+
+def fig_effort_nl(figure, ax, domain, image, q_t_nl, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
     """
     Permet de visualiser l'effort nl effectif vs reconstruit dans la base de Fourier
     """
     ddl_idx = post['idx_ddl']
     ddl_nl_labels = [str(k)+' : $'+v+'$' for k, v in hbm_res['input']['syst']['ddl_visu'].items() if k in ddl_idx]
 
-    self.figure.suptitle('Déplacements et efforts nl')
+    #figure.suptitle('Déplacements et efforts nl')   ## titre déjà dans la groupbox
 
     colors_list = ['b', 'c', 'r', 'orange', 'm', 'g', 'k', 'y', 'gray']
     custom_cycler = (cycler(color=colors_list[:ddl_idx.shape[0]]) +
                     cycler(lw=[1]*ddl_idx.shape[0]))
 
-    self.ax.set_xlim(self.domain[0],self.domain[-1])
+    ax.set_xlim(domain[0],domain[-1])
 
     # déplacements
-    self.ax.set_prop_cycle(custom_cycler)
+    ax.set_prop_cycle(custom_cycler)
     try:
-        lineObjects = self.ax.plot(self.domain,self.image.T,lw=1.5)
+        lineObjects = ax.plot(domain,image.T,lw=1.5)
     except IndexError :
-        lineObjects = self.ax.plot(self.domain,self.q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].T)
-    self.ax.set_xlim(self.domain[0],self.domain[-1])
+        lineObjects = ax.plot(domain,q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].T)
+    ax.set_xlim(domain[0],domain[-1])
 
     # autoscaling en y
-    self.ax.relim()
-    self.ax.autoscale_view(tight=True)
+    ax.relim()
+    ax.autoscale_view(tight=True)
 
     # TODO à revoir
     if hbm_res['input']['syst']['profil_contact'] is not None:
         if hbm_res['input']['syst']['profil_contact'] == 'cst' and post['quantite'] == 'x_t':
-            self.ax.hlines(hbm_res['input']['syst']['d_t'][ddl_idx],xmin=self.domain[0],max=self.domain[-1],linestyle='dashed',alpha = 0.5)
+            ax.hlines(hbm_res['input']['syst']['d_t'][ddl_idx],xmin=domain[0],max=domain[-1],linestyle='dashed',alpha = 0.5)
             for n in hbm_res['input']['syst']['mask_front']:
-                self.ax.fill_between(self.domain,max(1.1*self.q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].min(),(2*hbm_res['input']['syst']['d_t']).min()),hbm_res['input']['syst']['d_t'][n],color='gray',zorder=-1,alpha=0.75)
-            self.ax.set_ylim(top=max(1.1*self.q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].max(),1.1*hbm_res['input']['syst']['d_t'].max()),
-                            bottom=min((1.1*self.q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx]).min(),(1.1*hbm_res['input']['syst']['d_t']).min()))
+                ax.fill_between(domain,max(1.1*q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].min(),(2*hbm_res['input']['syst']['d_t']).min()),hbm_res['input']['syst']['d_t'][n],color='gray',zorder=-1,alpha=0.75)
+            ax.set_ylim(top=max(1.1*q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx].max(),1.1*hbm_res['input']['syst']['d_t'].max()),
+                            bottom=min((1.1*q_t_nl[hbm_res['input']['syst']['mask_front'],:,sol_idx]).min(),(1.1*hbm_res['input']['syst']['d_t']).min()))
         else:
-            self.ax.set_prop_cycle(custom_cycler)
+            ax.set_prop_cycle(custom_cycler)
             if hbm_res['input']['syst']['usure']:
                 d_t_carter = (hbm_res[module]['usure']['d_t_cont'][...,sol_idx] - hbm_res[module]['usure']['alpha_t_cont'][...,sol_idx])+ hbm_res['input']['syst']['ep_abr']
-                self.ax.plot(hbm_res[module]['usure']['theta'],d_t_carter.T,linestyle='dashed',alpha=0.5,lw=0.75)
-                self.ax.plot(hbm_res[module]['usure']['theta'],hbm_res[module]['usure']['d_t_cont'][ddl_idx//hbm_res['input']['syst']['ddl_noeud'],:,sol_idx].T,linestyle='dashed',alpha=0.5,lw=0.75)
+                ax.plot(hbm_res[module]['usure']['theta'],d_t_carter.T,linestyle='dashed',alpha=0.5,lw=0.75)
+                ax.plot(hbm_res[module]['usure']['theta'],hbm_res[module]['usure']['d_t_cont'][ddl_idx//hbm_res['input']['syst']['ddl_noeud'],:,sol_idx].T,linestyle='dashed',alpha=0.5,lw=0.75)
             else:
-                self.ax.plot(self.domain,hbm_res[module]['d_t_cont'][...,sol_idx].T,linestyle='dashed',alpha=0.5,lw=0.75)
+                ax.plot(domain,hbm_res[module]['d_t_cont'][...,sol_idx].T,linestyle='dashed',alpha=0.5,lw=0.75)
 
             if hbm_res['input']['syst']['usure']:
                 for n in ddl_idx//hbm_res['input']['syst']['ddl_noeud']:
-                    self.ax.fill_between(hbm_res[module]['usure']['theta'],1.1*d_t_carter.max(),d_t_carter[n,:],color='gray',zorder=-1,alpha=0.75)
-                    self.ax.fill_between(hbm_res[module]['usure']['theta'],d_t_carter[n,:],hbm_res[module]['usure']['d_t_cont'][n,:,sol_idx],color='gray',zorder=-1,alpha=0.075)
+                    ax.fill_between(hbm_res[module]['usure']['theta'],1.1*d_t_carter.max(),d_t_carter[n,:],color='gray',zorder=-1,alpha=0.75)
+                    ax.fill_between(hbm_res[module]['usure']['theta'],d_t_carter[n,:],hbm_res[module]['usure']['d_t_cont'][n,:,sol_idx],color='gray',zorder=-1,alpha=0.075)
             else:
                 for n in ddl_idx//hbm_res['input']['syst']['ddl_noeud']:
-                    self.ax.fill_between(self.domain,1.1*hbm_res[module]['d_t_cont'][n,:,sol_idx].max(),hbm_res[module]['d_t_cont'][n,:,sol_idx],color = 'gray',zorder=-1,alpha=0.75)
+                    ax.fill_between(domain,1.1*hbm_res[module]['d_t_cont'][n,:,sol_idx].max(),hbm_res[module]['d_t_cont'][n,:,sol_idx],color = 'gray',zorder=-1,alpha=0.75)
 
             if hbm_res['input']['syst']['usure']:
-                self.ax.set_ylim(top=max(1.1*self.image.max(),1.1*hbm_res[module]['usure']['d_t_cont'][...,sol_idx].max()))
+                ax.set_ylim(top=max(1.1*image.max(),1.1*hbm_res[module]['usure']['d_t_cont'][...,sol_idx].max()))
             else:
-                self.ax.set_ylim(top=max(1.1*self.image.max(),1.1*hbm_res[module]['d_t_cont'][hbm_res['input']['syst']['mask_front'],:,sol_idx].max()))
+                ax.set_ylim(top=max(1.1*image.max(),1.1*hbm_res[module]['d_t_cont'][hbm_res['input']['syst']['mask_front'],:,sol_idx].max()))
 
-    self.ax.set_prop_cycle(custom_cycler)
-    self.ax.legend(iter(lineObjects),ddl_nl_labels,loc='center left', bbox_to_anchor=(1, 0.5),fontsize=10)
-    self.ax.set_ylabel(r'$x$(t) [' + dep_unit + ']')
+    ax.set_prop_cycle(custom_cycler)
+    ax.legend(iter(lineObjects),ddl_nl_labels,loc='center left', bbox_to_anchor=(1, 0.5),fontsize=10)
+    ax.set_ylabel(r'$x$(t) [' + dep_unit + ']')
 
+    return figure, ax 

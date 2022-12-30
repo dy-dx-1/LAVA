@@ -93,11 +93,11 @@ class DynamicGraph:
                 self.artist = self.ax.plot(0,0, 'go', animated=True)[0]  # if here, first run so create point Indexing at 0 to hold the object of the point, plot returns a list 
                 self.background = self.canvas.copy_from_bbox(self.ax.bbox) # caching the static image where we will put the point over
             else: 
-                self.ax.cla() # clearing axis to get a clean copy of background as cached reference 
+                for line in self.ax.get_lines(): line.remove() # clearing lines to get a clean copy of background as cached reference || do not use cla!!! it removes other important stuff like ylims
                 self.ax.grid(True) 
                 self.canvas.draw() 
                 self.background = self.canvas.copy_from_bbox(self.ax.bbox) # saving the clean axis
-                self.artist = self.ax.plot([],[], animated=True)[0]  
+                self.artist = self.ax.plot([],[], animated=True, color="blue")[0]  
         # updating artist data 
         self.artist.set_data(new_x, new_y) 
         # preparing for blit by restoring default region
@@ -130,6 +130,7 @@ class Courbe_Frequence(DynamicGraph):
         toolbar_layout.addWidget(toolbar) # adding the toolbar to the specified layout on init 
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
+
 class Evolution_Temporelle(DynamicGraph): 
     """ 
     Sets up Evol temp graph and plots it on it's corresponding layout 
@@ -139,15 +140,25 @@ class Evolution_Temporelle(DynamicGraph):
     q_t_nl = None 
 
     def __init__(self, layout): 
-        super().__init__(layout, self.domain, self.image)
-    
+        self.figure, self.ax = plt.subplots()
+        self.ax.grid(True) 
+        plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
+        self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
+        # adjusting size 
+        self.ax.set_xlim(self.domain[0],self.domain[-1]) 
+        self.ax.set_ylabel(r'$x$(t) [m]')
+        self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
+        layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
+        self.ax.plot(self.domain, self.image, animated=False)    # preparing initial values
+        self.canvas.draw()              # drawing static background of the graph
+        self.background = None          # at init, background is None to let everything setup properly before caching the background 
+      
     @classmethod
     def regen_values(cls, sol_idx:int): 
         cls.q_t_nl = cls.hbm_res['crf'][cls.post['quantite']][cls.hbm_res['input']['syst']['ddl_nl']]
         cls.domain = cls.hbm_res['crf']['tau']
         ddl_idx = cls.post['idx_ddl']
         cls.image = cls.q_t_nl[ddl_idx,:,sol_idx].T
-
 
 class Spectre_Graph(DynamicGraph): 
     domain = np.linspace(-3,3)

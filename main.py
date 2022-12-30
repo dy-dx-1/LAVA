@@ -19,9 +19,10 @@ from tkinter import filedialog
 # Formatter évolution temporelle 
 # Ajouter efforts + format 
 # Update index on enter 
-# Ajouter navbar matplotlib pour CRF 
+# Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
 # raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
+# infos @init of window 
 
     
  
@@ -64,14 +65,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_courbe_freq()
         self.setup_evol_temp() 
         self.setup_spectre() 
-        self.on_slider_update()  # running it at init so that the infos are displayed on first view and not after 1rst update of slider 
 
-    def resizeEvent(self, event_obj):       
+    def resizeEvent(self, event):       
         """ 
         Overrides the resizeEvent method of QMainWindow so that we can update our cached background for blitting 
         """
+        #TODO: fix reset of ev temp on resize --> set background to something else? 
+        # self.on_slider_update()   #--> lol this kinda works but buggy and laggy 
         self.courbe_freq.background = None   # indication to recache the background on next update 
         self.ev_temp.background = None 
+        QtWidgets.QMainWindow.resizeEvent(self, event) 
 
     @pyqtSlot() 
     def on_slider_update(self): 
@@ -86,7 +89,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # updating evolution temporelle 
         self.ev_temp.regen_values(index_of_point)
-        self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)      
+        self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)    
 
         # updating informations sur x* 
         self.ui.label_infos_x.setText(f"Index solution = {index_of_point}  ;  ω = {round(new_x, 4)}rad⋅s⁻¹  ;  ‖x\u20D7‖ = {round(new_y, 6)}m") 
@@ -112,7 +115,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def setup_evol_temp(self): 
         # plotting something in évol temp 
         self.ev_temp = graphs.Evolution_Temporelle(self.ui.lay_ev_temp)
-        
+        # adjusting axis 
+        # using generator comprehension to find the max of all the local maximums for each image associated to a particular idx on the slider
+        abs_max = max((max(self.ev_temp.q_t_nl[self.ev_temp.post['idx_ddl'],:,idx][0]) for idx in range(self.ui.slider_solutions.maximum())))
+        abs_min = min((min(self.ev_temp.q_t_nl[self.ev_temp.post['idx_ddl'],:,idx][0]) for idx in range(self.ui.slider_solutions.maximum())))
+        self.ev_temp.ax.set_ylim(abs_min, abs_max)
     def setup_spectre(self): 
         # plotting something in spectre 
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
