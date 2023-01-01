@@ -65,6 +65,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Displaying system infos 
         self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  
         self.ui.gb_infos_sys.setMinimumWidth(int(len(self.ui.label_infos_sys.text())*6.6)) # Making sure that we always display all of the text, 6.6 is just a multiplier i found to work well experimentally (letters -> pixels) 
+        # Displaying paramètres hbm 
+        self.ui.label_params_hbm.setText(fhand.get_hbm_params(graphs.DynamicGraph.hbm_res))        
         # Filling ddl combobox with possible ddls & adding change ddl functionality ( setup_new_ddl() )
         for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)     
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))  

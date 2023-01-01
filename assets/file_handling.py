@@ -1,4 +1,5 @@
 from re import search 
+
 def get_sys_info(name:str, hbm_res:dict)->tuple:
     match = search(r"\/((?:(?!\/).)+?)\.pkl", name)
     if not match: 
@@ -10,3 +11,9 @@ def get_sys_info(name:str, hbm_res:dict)->tuple:
     nb_s = round(hbm_res['crf']['temps_calcul'].get('s'), 2) 
     temps_calcul = f"{nb_heures} h: {nb_min} m: {nb_s} s"
     return f"Fichier: {fichier}  |  Temps de calcul: {temps_calcul}"
+
+def get_hbm_params(hbm_res:dict)->str: 
+    n_harm = hbm_res['input']['solv']['n_harm']
+    n_t = hbm_res['input']['solv']['n_t']
+    nu = hbm_res['input']['solv']['nu']
+    return f"n_harm = {n_harm} | n_t = {n_t} | nu = {nu}"
