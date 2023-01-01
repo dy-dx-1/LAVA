@@ -60,7 +60,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  # Displaying infos sys 
         self.ui.gb_infos_sys.setMinimumWidth(int(len(self.ui.label_infos_sys.text())*6.6)) # Making sure that we always display all of the text, 6.6 is just a multiplier i found to work well experimentally (letters -> pixels) 
         for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)   # Adding ddls to combobox  
-        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))      
+        self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))  
+        self.ui.idx_sol_line_edit.returnPressed.connect(self.on_idx_enter)# connecting enter presses to update the slider     
 
         self.setup_courbe_freq()
         self.setup_evol_temp() 
@@ -75,6 +76,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.courbe_freq.background = None   # indication to recache the background on next update 
         self.ev_temp.background = None 
         QtWidgets.QMainWindow.resizeEvent(self, event) 
+    
+    @pyqtSlot()
+    def on_idx_enter(self): 
+        new_val = self.ui.idx_sol_line_edit.text() 
+        if new_val == '': new_val = 0 # at init '' is default value 
+        self.ui.slider_solutions.setValue(int(float(new_val))) # float -> int called to avoid invalid literal  
+        self.on_slider_update()
 
     @pyqtSlot() 
     def on_slider_update(self): 
