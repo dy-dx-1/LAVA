@@ -1,34 +1,38 @@
+### GUI windows 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSlot
-import sys 
+from tkinter import filedialog
 
+### Backend (assets module) 
 from assets.ui_structure import Ui_MainWindow
 import assets.graphiques as graphs 
 import assets.file_handling as fhand
 
-import pickle 
+### File handling 
 import os 
-from tkinter import filedialog
+import sys 
+import pickle 
 
+### TODO
 # debugger 
 # ajouter informations générales du système (nom, temps de calcul) /////////////////////
 # error handling file open ////////////////////////////////////////////////
 # format overflow of axis into group box/////////// NOTE: TIGHTLAYOUT CAUSES LAG ON RESIZE!!! 
 # ajouter informations x* ////////////////////////////////
 # ajouter informations sur paramètresHBM 
-# Formatter évolution temporelle 
+# Formatter évolution temporelle ////////////////// NOTE: Axe des x? patch gris doivent être dynamiques? -> adapter si oui 
 # Ajouter efforts + format 
-# Update index on enter 
+# Update index on enter /////////////////////////////////////
 # Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
 # raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
 # infos @init of window 
+# reformat so that everything is clear /////////////
 
-    
- 
 def initial_setup(): 
     """
     Runs at the beginning of the program and collects the necessary information to generate the graphs. 
+    Information is updated and stored in the graphs classes as class attributes that will be accessed through the GUI. 
     """
     global input_file # holds the name of the input file being analyzed. constant for all of the program when analyzing a particular file
     input_file = filedialog.askopenfilename(
@@ -55,13 +59,17 @@ def initial_setup():
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
         super(MainWindow, self).__init__(parent=parent) 
+        # Linking to the ref ui 
         self.ui = Ui_MainWindow()                           
-        self.ui.setupUi(self)                           # Setting up the UI defined by our ui reference file 
-        self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  # Displaying infos sys 
+        self.ui.setupUi(self)               # Setting up the UI defined by our ui reference file 
+        # Displaying system infos 
+        self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  
         self.ui.gb_infos_sys.setMinimumWidth(int(len(self.ui.label_infos_sys.text())*6.6)) # Making sure that we always display all of the text, 6.6 is just a multiplier i found to work well experimentally (letters -> pixels) 
-        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)   # Adding ddls to combobox  
+        # Filling ddl combobox with possible ddls & adding change ddl functionality ( setup_new_ddl() )
+        for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)     
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))  
-        self.ui.idx_sol_line_edit.returnPressed.connect(self.on_idx_enter)# connecting enter presses to update the slider     
+        # Allowing slider to be updated on enter press after changing value of idx lineedit 
+        self.ui.idx_sol_line_edit.returnPressed.connect(self.on_idx_enter)    
 
         self.setup_courbe_freq()
         self.setup_evol_temp() 
@@ -79,6 +87,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     @pyqtSlot()
     def on_idx_enter(self): 
+        """
+        Updates the slider position and the graphs when someone presses enter in the idx line edit. 
+        """
         new_val = self.ui.idx_sol_line_edit.text() 
         if new_val == '': new_val = 0 # at init '' is default value 
         self.ui.slider_solutions.setValue(int(float(new_val))) # float -> int called to avoid invalid literal  
@@ -86,6 +97,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @pyqtSlot() 
     def on_slider_update(self): 
+        """ 
+        Updates the graphs and related display info for a new index value. 
+        """
         # updating the plot on the slider value change 
         index_of_point = self.ui.slider_solutions.value() # vals of slider correspond to all the indexes in the domain and image sets
         new_x = self.courbe_freq.domain[index_of_point]           
@@ -111,7 +125,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Setting bounds of slider solutions with the dom of courbe freq 
         self.ui.slider_solutions.setMaximum(self.courbe_freq.size-1) # max of the x domain (right end of slider) | -1 cause index of size will be out of bounds
         self.ui.slider_solutions.setMinimum(0) 
-
         self.ui.slider_solutions.valueChanged.connect(self.on_slider_update)
         # Connecting button presses to slider value changes 
         @pyqtSlot() 
@@ -121,13 +134,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.decrement_button.clicked.connect(lambda: push_slider(-1))
 
     def setup_evol_temp(self): 
+        """
+        Formats the y axis of evol temp and initialises it. If ddl has been changed, it must be fully updated before calling this
+        as it calls q_t_nl and post['idx_ddl'] to construct the images.  
+        """
         # plotting something in évol temp 
         self.ev_temp = graphs.Evolution_Temporelle(self.ui.lay_ev_temp)
-        # adjusting axis 
-        # using generator comprehension to find the max of all the local maximums for each image associated to a particular idx on the slider
+        # generator comprehension finds the max of all the local maximums for each image associated to a particular idx on the slider
         abs_max = max((max(self.ev_temp.q_t_nl[self.ev_temp.post['idx_ddl'],:,idx][0]) for idx in range(self.ui.slider_solutions.maximum())))
         abs_min = min((min(self.ev_temp.q_t_nl[self.ev_temp.post['idx_ddl'],:,idx][0]) for idx in range(self.ui.slider_solutions.maximum())))
         self.ev_temp.ax.set_ylim(abs_min, abs_max)
+
     def setup_spectre(self): 
         # plotting something in spectre 
         self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
