@@ -213,7 +213,7 @@ def fig_crf_cont(hbm_res,post):
 ################################################################################################################################################  
 
 def initial_adjust_ev_temp(figure, ax, domain, post:dict, dep_unit:str='m'): 
-    ## ne fonctionne pas -> fait rien (2022-30-12)
+    ## ne fonctionne pas -> pas utilisé (2022-30-12)
     ddl_idx = post['idx_ddl']
     colors_list = ['b', 'c', 'r', 'orange', 'm', 'g', 'k', 'y', 'gray']
     custom_cycler = (cycler(color=colors_list[:ddl_idx.shape[0]]) +
@@ -232,10 +232,7 @@ def initial_adjust_ev_temp(figure, ax, domain, post:dict, dep_unit:str='m'):
     ax.legend() 
     return figure, ax 
 
-def fig_effort_nl(figure, ax, domain, image, q_t_nl, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
-    """
-    Permet de visualiser l'effort nl effectif vs reconstruit dans la base de Fourier
-    """
+def fig_evol_temp(figure, ax, domain, image, q_t_nl, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
     ddl_idx = post['idx_ddl']
     ddl_nl_labels = [str(k)+' : $'+v+'$' for k, v in hbm_res['input']['syst']['ddl_visu'].items() if k in ddl_idx]
 
@@ -294,3 +291,40 @@ def fig_effort_nl(figure, ax, domain, image, q_t_nl, hbm_res:dict, post:dict, so
     ax.set_ylabel(r'$x$(t) [' + dep_unit + ']')
 
     return figure, ax 
+
+
+################################################################################################################################################
+# Functions needed for efforts 
+################################################################################################################################################
+def init_fig_effort_nl(hbm_res, post, module='crf', fnl_unit='N'):
+    ddl_idx = post['idx_ddl']
+
+    fig, ax = plt.subplots()
+
+    colors_list = ['b', 'c', 'r', 'orange', 'm', 'g', 'k', 'y', 'gray']
+    custom_cycler = (cycler(color=colors_list[:ddl_idx.shape[0]]) +
+                     cycler(lw=[1]*ddl_idx.shape[0]))
+
+    ax.set_xlim(hbm_res[module]['tau'][0],hbm_res[module]['tau'][-1])
+    ax.set_ylim([5*np.min(hbm_res[module]['f_nl_tilde']),np.max(hbm_res[module]['f_nl_t'])])
+
+    f_nl_t = hbm_res[module]['f_nl_t'][hbm_res['input']['syst']['ddl_nl']]
+    f_nl_tilde  = hbm_res[module]['f_nl_tilde'][hbm_res['input']['syst']['ddl_nl']]
+
+    # efforts
+    ax.set_prop_cycle(custom_cycler)
+    ax.set_xlabel(r'$\tau$')
+
+    if hbm_res['input']['solv']['nu'] == 1 :
+        ax.set_xticks([0, np.pi, 2*np.pi])
+        ax.set_xticklabels(['$0$', '$T/2$', '$T$'])
+    elif hbm_res['input']['solv']['nu'] == 2 :
+        ax.set_xticks([0, np.pi, 2*np.pi, 3*np.pi, 4*np.pi])
+        ax.set_xticklabels(['$0$', '$T/2$', '$T$', '$3T/2$', '$2T$'])
+
+    ax.set_ylabel(r'$f_{nl}$ [' + fnl_unit + ']')
+    return fig, ax 
+
+#def plot_effort_nl(ax, hbm_res, module, f_nl_t, ddl_idx, sol_idx, f_nl_tilde): 
+#    ax.plot(hbm_res[module]['tau'],f_nl_t[ddl_idx,:,sol_idx].T,linestyle='dashed',alpha = 0.5)
+#    ax.plot(hbm_res[module]['tau'],f_nl_tilde[ddl_idx,:,sol_idx].T,lw=1.5)

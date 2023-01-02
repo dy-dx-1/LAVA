@@ -175,16 +175,16 @@
              <item row="1" column="0">
               <layout class="QGridLayout" name="layout_graphiques">
                <item row="1" column="1">
-                <widget class="QGroupBox" name="gb_spectre_freq">
+                <widget class="QGroupBox" name="gb_efforts">
                  <property name="font">
                   <font>
                    <pointsize>11</pointsize>
                   </font>
                  </property>
                  <property name="title">
-                  <string>Spectre fréquentiel </string>
+                  <string>Efforts </string>
                  </property>
-                 <layout class="QGridLayout" name="lay_spectre_freq"/>
+                 <layout class="QGridLayout" name="lay_efforts"/>
                 </widget>
                </item>
                <item row="0" column="0" rowspan="2">
@@ -272,7 +272,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Analyse de stabilité</string>
        </attribute>
       </widget>
      </widget>
@@ -288,6 +288,36 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFichier">
+    <property name="title">
+     <string>Fichier</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuNorme">
+    <property name="title">
+     <string>Norme</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuQuantit">
+    <property name="title">
+     <string>Quantité</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuM_thode_Stabilit">
+    <property name="title">
+     <string>Méthode Stabilité</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuGUI2TikZ">
+    <property name="title">
+     <string>GUI2TikZ</string>
+    </property>
+   </widget>
+   <addaction name="menuFichier"/>
+   <addaction name="menuNorme"/>
+   <addaction name="menuQuantit"/>
+   <addaction name="menuM_thode_Stabilit"/>
+   <addaction name="menuGUI2TikZ"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

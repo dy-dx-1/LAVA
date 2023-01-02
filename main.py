@@ -19,9 +19,9 @@ import pickle
 # error handling file open ////////////////////////////////////////////////
 # format overflow of axis into group box/////////// NOTE: TIGHTLAYOUT CAUSES LAG ON RESIZE!!! 
 # ajouter informations x* ////////////////////////////////
-# ajouter informations sur paramètresHBM 
+# ajouter informations sur paramètresHBM/////////////////////////// 
 # Formatter évolution temporelle ////////////////// NOTE: Axe des x? patch gris doivent être dynamiques? -> adapter si oui 
-# Ajouter efforts + format 
+# Ajouter efforts/////////////// + format 
 # Update index on enter /////////////////////////////////////
 # Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
@@ -55,6 +55,7 @@ def initial_setup():
     # Generating values for different curves with hbm_res 
     graphs.Courbe_Frequence.regen_values()
     graphs.Evolution_Temporelle.regen_values(0) # slider inits at 0
+    graphs.Efforts.regen_values(0)
     
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None): 
@@ -75,7 +76,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setup_courbe_freq()
         self.setup_evol_temp() 
-        self.setup_spectre() 
+        self.setup_efforts() 
 
     def resizeEvent(self, event):       
         """ 
@@ -115,6 +116,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ev_temp.regen_values(index_of_point)
         self.ev_temp.blit_plot(self.ev_temp.domain, self.ev_temp.image, point_like=False)    
 
+        # updating efforts 
+        self.efforts.regen_values(index_of_point) 
+        self.efforts.blit_plot(self.efforts.domain, self.efforts.image, point_like=False)
+
         # updating informations sur x* 
         self.ui.label_infos_x.setText(f"Index solution = {index_of_point}  ;  ω = {round(new_x, 4)}rad⋅s⁻¹  ;  ‖x\u20D7‖ = {round(new_y, 6)}m") 
 
@@ -147,9 +152,9 @@ class MainWindow(QtWidgets.QMainWindow):
         abs_min = min((min(self.ev_temp.q_t_nl[self.ev_temp.post['idx_ddl'],:,idx][0]) for idx in range(self.ui.slider_solutions.maximum())))
         self.ev_temp.ax.set_ylim(abs_min, abs_max)
 
-    def setup_spectre(self): 
-        # plotting something in spectre 
-        self.spectre = graphs.Spectre_Graph(self.ui.lay_spectre_freq) 
+    def setup_efforts(self): 
+        # plotting something in  efforts 
+        self.efforts = graphs.Efforts(self.ui.lay_efforts) 
     
     def setup_new_ddl(self, ddl:str): 
         """

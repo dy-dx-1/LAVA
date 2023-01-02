@@ -75,18 +75,7 @@ class DynamicGraph:
                'soft_gray': '#696969',
                'dark_gray': '#6a6a6a'},
     'sep_deci': '.'}
-    
-    def __init__(self, layout, domain, image): 
-        self.figure, self.ax = plt.subplots()
-        self.ax.grid(True) 
-        plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
-        self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
-        self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
-        layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
-        self.ax.plot(domain, image, animated=False)    # preparing initial values
-        self.canvas.draw()              # drawing static background of the graph
-        self.background = None          # at init, background is None to let everything setup properly before caching the background 
-            
+     
     def blit_plot(self, new_x, new_y, point_like=True):
         if not self.background: # if we are at first update or after resize, cache the background in the new position 
             if point_like: 
@@ -160,8 +149,26 @@ class Evolution_Temporelle(DynamicGraph):
         ddl_idx = cls.post['idx_ddl']
         cls.image = cls.q_t_nl[ddl_idx,:,sol_idx].T
 
-class Spectre_Graph(DynamicGraph): 
-    domain = np.linspace(-3,3)
-    image = list(map(lambda t: np.cos(t), np.linspace(-3,3)))
+class Efforts(DynamicGraph): 
+
     def __init__(self, layout): 
-        super().__init__(layout, self.domain, self.image)
+        self.figure, self.ax = tools.init_fig_effort_nl(self.hbm_res, self.post)
+        self.ax.grid(True) 
+        plt.tight_layout()                     # Prevents overflowing of axes title into the group boxes 
+        self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
+        self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
+        layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
+        self.ax.plot(self.domain, self.image, animated=False)    # preparing initial values
+        self.canvas.draw()              # drawing static background of the graph
+        self.background = None          # at init, background is None to let everything setup properly before caching the background 
+    
+    @classmethod
+    def regen_values(cls, sol_idx:int, module:str='crf'):
+        #TODO: add dashed line? rn just superposes over solid one 
+        f_nl_tilde = cls.hbm_res[module]['f_nl_tilde'][cls.hbm_res['input']['syst']['ddl_nl']]
+        ddl_idx = cls.post['idx_ddl']
+        cls.domain = cls.hbm_res[module]['tau']
+        cls.image = f_nl_tilde[ddl_idx,:,sol_idx].T
+        # dashed domain (if want add in future) : hbm_res[module]['tau']
+        # dashed image (if want add in future) : f_nl_t[ddl_idx,:,sol_idx].T
+        # params: linestyle='dashed',alpha = 0.5
