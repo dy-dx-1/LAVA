@@ -72,8 +72,9 @@ class MainWindow(QtWidgets.QMainWindow):
         for ddl_text in graphs.DynamicGraph.ddls_to_display: self.ui.select_chx_ddl.addItem(ddl_text)     
         self.ui.select_chx_ddl.activated.connect(lambda: self.setup_new_ddl(self.ui.select_chx_ddl.currentText()))  
         # Allowing slider to be updated on enter press after changing value of idx lineedit 
-        self.ui.idx_sol_line_edit.returnPressed.connect(self.on_idx_enter)    
-
+        self.ui.idx_sol_line_edit.returnPressed.connect(self.on_idx_enter)   
+        # Coloring the slider 
+        self.ui.slider_solutions.setStyleSheet(fhand.generate_slider_stylesheet(graphs.DynamicGraph.hbm_res))
         self.setup_courbe_freq()
         self.setup_evol_temp() 
         self.setup_efforts() 

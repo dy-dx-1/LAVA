@@ -1,5 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
+import matplotlib
+matplotlib.use('QtAgg')
 import matplotlib.pyplot as plt
 
 import numpy as np 
