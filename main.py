@@ -20,8 +20,8 @@ import pickle
 # format overflow of axis into group box/////////// NOTE: TIGHTLAYOUT CAUSES LAG ON RESIZE!!! 
 # ajouter informations x* ////////////////////////////////
 # ajouter informations sur paramètresHBM/////////////////////////// 
-# Formatter évolution temporelle ////////////////// NOTE: Axe des x? patch gris doivent être dynamiques? -> adapter si oui 
-# Ajouter efforts/////////////// + format 
+# Formatter évolution temporelle ////////////////// NOTE: labels sur axe des x? patch gris doivent être dynamiques? -> adapter si oui 
+# Ajouter efforts/////////////// NOTE: y lim set par la fonction donnée weird, voir la fonction dans hb_tools 
 # Update index on enter /////////////////////////////////////
 # Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  

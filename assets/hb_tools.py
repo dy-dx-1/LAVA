@@ -306,7 +306,7 @@ def init_fig_effort_nl(hbm_res, post, module='crf', fnl_unit='N'):
                      cycler(lw=[1]*ddl_idx.shape[0]))
 
     ax.set_xlim(hbm_res[module]['tau'][0],hbm_res[module]['tau'][-1])
-    ax.set_ylim([5*np.min(hbm_res[module]['f_nl_tilde']),np.max(hbm_res[module]['f_nl_t'])])
+    ax.set_ylim([5*np.min(hbm_res[module]['f_nl_tilde']),np.max(hbm_res[module]['f_nl_t'])])  ###### <---- ne semble pas bien ajuster les limites, essayer de commenter cette ligne pour voir 
 
     f_nl_t = hbm_res[module]['f_nl_t'][hbm_res['input']['syst']['ddl_nl']]
     f_nl_tilde  = hbm_res[module]['f_nl_tilde'][hbm_res['input']['syst']['ddl_nl']]
