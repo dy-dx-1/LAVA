@@ -109,7 +109,7 @@ class Courbe_Frequence(DynamicGraph):
     def regen_values(cls): 
        cls.domain = cls.hbm_res['crf']['omega']
        cls.size = len(cls.domain)
-       cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][0]
+       cls.image = cls.hbm_res['crf']['norme']['x_t']['inf'][cls.post['idx_ddl'][0]]
 
     def __init__(self, layout, toolbar_layout): 
         self.figure, self.ax = tools.fig_crf_cont(self.hbm_res, self.post)
@@ -117,8 +117,8 @@ class Courbe_Frequence(DynamicGraph):
         self.figure.set_tight_layout(True)     # so that tight_layout is kept on resizes 
         self.canvas = FigureCanvas(self.figure)     # self.canvas is the widget that we will use to show the graph 
         layout.addWidget(self.canvas)   # Adding the graph to a layout container in the ui 
-        toolbar = BlitToolbar(self) 
-        toolbar_layout.addWidget(toolbar) # adding the toolbar to the specified layout on init 
+        self.toolbar = BlitToolbar(self) 
+        toolbar_layout.addWidget(self.toolbar) # adding the toolbar to the specified layout on init 
         self.canvas.draw()              # drawing static background of the graph
         self.background = None          # at init, background is None to let everything setup properly before caching the background 
 

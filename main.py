@@ -24,7 +24,7 @@ import pickle
 # Ajouter efforts/////////////// NOTE: y lim set par la fonction donnée weird, voir la fonction dans hb_tools 
 # Update index on enter /////////////////////////////////////
 # Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
-# Couleurs du slider, voir dans crf couleur spécifiée dans scatter  
+# Couleurs du slider, voir dans crf couleur spécifiée dans scatter  ////////////////////////////////////////
 # raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
 # infos @init of window 
 # reformat so that everything is clear /////////////
@@ -162,10 +162,15 @@ class MainWindow(QtWidgets.QMainWindow):
         Updates the GUI to display information related to a new selected ddl 
         Runs when user selects a new ddl with ddl combobox 
         """
-        ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index                 
+        ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index   
+        # Updating ddl for all the graphs               
         graphs.DynamicGraph.update_ddl(new_ddl=ddl) 
+        # Removing graphs, toolbar and initializing new ones with the new ddl 
         self.ui.lay_courbe_freq.removeWidget(self.courbe_freq.canvas)
+        self.ui.layout_toolbar.removeWidget(self.courbe_freq.toolbar)
+        graphs.Courbe_Frequence.regen_values()
         self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_toolbar)
+        # TODO: update other graphs 
 
 def main():
     initial_setup() 
