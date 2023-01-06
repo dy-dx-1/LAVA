@@ -168,12 +168,20 @@ class MainWindow(QtWidgets.QMainWindow):
         ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index   
         # Updating ddl for all the graphs               
         graphs.DynamicGraph.update_ddl(new_ddl=ddl) 
-        # Removing graphs, toolbar and initializing new ones with the new ddl 
-        self.ui.lay_courbe_freq.removeWidget(self.courbe_freq.canvas)
+
+        # Removing toolbar and graphs 
         self.ui.layout_toolbar.removeWidget(self.courbe_freq.toolbar)
+        self.ui.lay_courbe_freq.removeWidget(self.courbe_freq.canvas)
+        self.ui.lay_ev_temp.removeWidget(self.ev_temp.canvas) 
+        self.ui.lay_efforts.removeWidget(self.efforts.canvas) 
+
+        # Initializing new ones with new ddl 
         graphs.Courbe_Frequence.regen_values()
+        graphs.Evolution_Temporelle.regen_values(self.ui.slider_solutions.value()) 
+        graphs.Efforts.regen_values(self.ui.slider_solutions.value())
         self.courbe_freq = graphs.Courbe_Frequence(self.ui.lay_courbe_freq, self.ui.layout_toolbar)
-        # TODO: update other graphs 
+        self.setup_evol_temp()
+        self.efforts = graphs.Efforts(self.ui.lay_efforts) 
 
 def main():
     initial_setup() 
