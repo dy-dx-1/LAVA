@@ -26,7 +26,7 @@ import pickle
 # Ajouter navbar matplotlib pour CRF ///////////////////// --> NOTE: remove buttons? 
 # Couleurs du slider, voir dans crf couleur spécifiée dans scatter  ////////////////////////////////////////
 # raccourcis clavier & menu (échap pour exit, 1, 2 ,3 pour widgets )
-# infos @init of window 
+# infos @init of window //////////////////////////////
 # reformat so that everything is clear /////////////
 
 def initial_setup(): 
@@ -66,6 +66,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Displaying system infos 
         self.ui.label_infos_sys.setText(fhand.get_sys_info(input_file, graphs.DynamicGraph.hbm_res))  
         self.ui.gb_infos_sys.setMinimumWidth(int(len(self.ui.label_infos_sys.text())*6.6)) # Making sure that we always display all of the text, 6.6 is just a multiplier i found to work well experimentally (letters -> pixels) 
+        # Displaying infos sur x @0 
+        self.ui.label_infos_x.setText(f"Index solution = {0}  ;  ω = {round(graphs.Courbe_Frequence.domain[0], 4)}rad⋅s⁻¹  ;  ‖x\u20D7‖ = {round(graphs.Courbe_Frequence.image[0], 6)}m") 
         # Displaying paramètres hbm 
         self.ui.label_params_hbm.setText(fhand.get_hbm_params(graphs.DynamicGraph.hbm_res))        
         # Filling ddl combobox with possible ddls & adding change ddl functionality ( setup_new_ddl() )
@@ -87,6 +89,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.on_slider_update()   #--> lol this kinda works but buggy and laggy 
         self.courbe_freq.background = None   # indication to recache the background on next update 
         self.ev_temp.background = None 
+        self.efforts.background = None 
         QtWidgets.QMainWindow.resizeEvent(self, event) 
     
     @pyqtSlot()
