@@ -1,5 +1,5 @@
 ### GUI windows 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import pyqtSlot
 from tkinter import filedialog
 
@@ -81,6 +81,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_evol_temp() 
         self.setup_efforts() 
 
+    def keyPressEvent(self, event):
+        key = event.key() 
+        # Escape key to quit 
+        if key == QtCore.Qt.Key_Escape: 
+            self.close() 
+            
     def resizeEvent(self, event):       
         """ 
         Overrides the resizeEvent method of QMainWindow so that we can update our cached background for blitting 

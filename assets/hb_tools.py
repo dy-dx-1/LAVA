@@ -211,7 +211,7 @@ def fig_crf_cont(hbm_res,post):
 ################################################################################################################################################
 # Functions needed for evol temp 
 ################################################################################################################################################  
-
+##### Neither of these being used right now, see Evolution temporelle class 
 def initial_adjust_ev_temp(figure, ax, domain, post:dict, dep_unit:str='m'): 
     ## ne fonctionne pas -> pas utilisé (2022-30-12)
     ddl_idx = post['idx_ddl']
@@ -233,6 +233,7 @@ def initial_adjust_ev_temp(figure, ax, domain, post:dict, dep_unit:str='m'):
     return figure, ax 
 
 def fig_evol_temp(figure, ax, domain, image, q_t_nl, hbm_res:dict, post:dict, sol_idx:int, module:str='crf', dep_unit:str='m'):
+    ## ne fonctionne pas -> pas utilisé (2022-30-12)
     ddl_idx = post['idx_ddl']
     ddl_nl_labels = [str(k)+' : $'+v+'$' for k, v in hbm_res['input']['syst']['ddl_visu'].items() if k in ddl_idx]
 
@@ -307,9 +308,6 @@ def init_fig_effort_nl(hbm_res, post, module='crf', fnl_unit='N'):
 
     ax.set_xlim(hbm_res[module]['tau'][0],hbm_res[module]['tau'][-1])
     ax.set_ylim([5*np.min(hbm_res[module]['f_nl_tilde']),np.max(hbm_res[module]['f_nl_t'])])  ###### <---- ne semble pas bien ajuster les limites, essayer de commenter cette ligne pour voir 
-
-    f_nl_t = hbm_res[module]['f_nl_t'][hbm_res['input']['syst']['ddl_nl']]
-    f_nl_tilde  = hbm_res[module]['f_nl_tilde'][hbm_res['input']['syst']['ddl_nl']]
 
     # efforts
     ax.set_prop_cycle(custom_cycler)

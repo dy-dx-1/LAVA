@@ -1,12 +1,13 @@
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
+### Matplotlib GUI backends and pyplot 
 import matplotlib
 matplotlib.use('QtAgg')
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 
+### Calculations and helper functions to generate data for graphs 
 import numpy as np 
 from . import hb_tools as tools 
-
 
 class BlitToolbar(NavigationToolbar2QT): 
     """
@@ -43,9 +44,11 @@ class BlitToolbar(NavigationToolbar2QT):
 class DynamicGraph: 
     """
     Parent class used to create dynamic graphs, do not use directly. 
-    _domain, _image and _size are variables shared by all child classes but different for each of them 
-    which is why their property methods reference self (child object). 
+    domain, image and size exist in every child class but different for each of them 
     Child classes should have a regen_values method that sets these vars accordingly for their own class. 
+
+    hbm_res, post and selected_ddl should be common to all child classes so they should only be updated through DynamicGraph. 
+    these are helpful when setting up new ddls/domains/images since they reference hbm_res & post. 
     """
     domain = [] 
     image = [] 
@@ -125,7 +128,7 @@ class Courbe_Frequence(DynamicGraph):
 class Evolution_Temporelle(DynamicGraph): 
     """ 
     Sets up Evol temp graph and plots it on it's corresponding layout 
-    regen_values method regenerates the domain, image and q_t_nl associated to it, which are then used to plot new functions 
+    regen_values method regenerates the domain, image and q_t_nl associated to it, which are then used to plot new data 
     when blitting on slider update. 
     """
     q_t_nl = None 
@@ -152,7 +155,11 @@ class Evolution_Temporelle(DynamicGraph):
         cls.image = cls.q_t_nl[ddl_idx,:,sol_idx].T
 
 class Efforts(DynamicGraph): 
-
+    """
+    Sets up Efforts graph and plots it on it's corresponding layout. 
+    regen_values method regenerates the domain, image and f_nl_tilde associated, which are then used to plot new 
+    data when blitting on slider update.  
+    """
     def __init__(self, layout): 
         self.figure, self.ax = tools.init_fig_effort_nl(self.hbm_res, self.post)
         self.ax.grid(True) 
