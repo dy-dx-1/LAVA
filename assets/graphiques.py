@@ -101,7 +101,9 @@ class DynamicGraph:
         # blitting and flushing the events to make sure everything is done cleanly
         self.canvas.blit(self.ax.bbox)
         self.canvas.flush_events()
-        
+    
+    def close(self): 
+        plt.close(fig=self.figure) 
 
 class Courbe_Frequence(DynamicGraph): 
     """

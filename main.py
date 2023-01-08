@@ -1,6 +1,6 @@
 ### GUI windows 
-from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import pyqtSlot
+from PyQt6 import QtWidgets, QtGui
+from PyQt6.QtCore import pyqtSlot, Qt
 from tkinter import filedialog
 
 ### Backend (assets module) 
@@ -82,10 +82,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_efforts() 
 
     def keyPressEvent(self, event):
+        """ 
+        Links different actions to keypresses. 
+        Using match case for clarity instead of if/elif. 
+        """
         key = event.key() 
-        # Escape key to quit 
-        if key == QtCore.Qt.Key_Escape: 
-            self.close() 
+        match key: 
+            case Qt.Key.Key_Escape: 
+                self.close() 
+            case Qt.Key.Key_Plus:
+                self.ui.slider_solutions.setValue(self.ui.slider_solutions.value()+1) 
+            case Qt.Key.Key_Minus: 
+                self.ui.slider_solutions.setValue(self.ui.slider_solutions.value()-1)
             
     def resizeEvent(self, event):       
         """ 
@@ -106,7 +114,6 @@ class MainWindow(QtWidgets.QMainWindow):
         new_val = self.ui.idx_sol_line_edit.text() 
         if new_val == '': new_val = 0 # at init '' is default value 
         self.ui.slider_solutions.setValue(int(float(new_val))) # float -> int called to avoid invalid literal  
-        self.on_slider_update()
 
     @pyqtSlot() 
     def on_slider_update(self): 
@@ -174,6 +181,11 @@ class MainWindow(QtWidgets.QMainWindow):
         ddl = int(ddl[0])  # TODO: use other way than currentText()? maybe just index   
         # Updating ddl for all the graphs               
         graphs.DynamicGraph.update_ddl(new_ddl=ddl) 
+
+        # Closing matplotlib figures ("Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory.")
+        self.courbe_freq.close() 
+        self.ev_temp.close() 
+        self.efforts.close() 
 
         # Removing toolbar and graphs 
         self.ui.layout_toolbar.removeWidget(self.courbe_freq.toolbar)
